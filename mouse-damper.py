@@ -3,140 +3,111 @@
 import sys
 import libevdev
 
+USEC_IN_MSEC = 1000
+USEC_IN_SEC = USEC_IN_MSEC * 1000
+
 CANCEL_VALUE = 2 # relative value at or below which events are initially zeroed out
-THRESHOLD = 20 # absolute distance until tiny events are no longer cancelled (jitter becomes intentional movement)
-TIMEOUT = 500 # ms  - time to cancel tiny events
-DECAY_TIME = 100 # ms  - time after reaching threshold before resetting everything (settle time)
+DELTA_THRESHOLD = 10 # absolute distance until tiny events are no longer cancelled (jitter becomes intentional movement)
+THRESHOLD_TIMEOUT = 500 * USEC_IN_MSEC # time to cancel tiny events
 
-def to_ms(event):
-    sec_to_ms = event.sec * 1000
-    usec_to_ms = int(event.usec / 1000)
+DECAY_TIME = 100 * USEC_IN_MSEC # time after reaching threshold before resetting everything (settle time)
 
-    return sec_to_ms + usec_to_ms
+class EventHandler(object):
+    def __init__(self, in_device, out_device, eventcode):
+        self.code = eventcode
+        self.in_device = in_device
+        self.out_device = out_device
 
-def main(args):
-    path = args[1]
+        self.in_device.enable(self.code)
 
-    fd = open(path, 'rb')
-    d = libevdev.Device(fd)
-    d.grab()
+        self.delta_accumulator = 0
+        self.start_accumulator_time = 0
+        self.decay_time = 0
+        self.passthru = False
 
-    # create a duplicate of our input device
-    d.enable(libevdev.EV_REL.REL_X)  # make sure the code we map to is available
-    d.enable(libevdev.EV_REL.REL_Y)  # make sure the code we map to is available
-    uidev = d.create_uinput_device()
-    print('Device is at {}'.format(uidev.devnode))
+    def handle_event(self, event):
+        if event.code != self.code:
+            return False
 
-    x_accumulator = 0
-    y_accumulator = 0
-    x_start_ms = 0
-    y_start_ms = 0
-    x_decay_ms = 0
-    y_decay_ms = 0
-    x_passthru = False
-    y_passthru = False
+        etime = (event.sec * USEC_IN_SEC + event.usec)
+        aval = abs(event.value)
 
+        decay_time_not_reached = (etime - self.decay_time) < DECAY_TIME
+        within_time_threshold = (etime - self.start_accumulator_time) < THRESHOLD_TIMEOUT
+        within_move_threshold = abs(self.delta_accumulator) < DELTA_THRESHOLD
 
-    while True:
-        for e in d.events():
-            if e.code in (libevdev.EV_REL.REL_X, libevdev.EV_REL.REL_Y):
-                oldval = e.value
+        new_event = event
 
-                aval = abs(e.value)
-                val = e.value
+        if self.passthru:
+            if decay_time_not_reached:
+                print("continue passthru %s: %d" % (str(self.code), etime))
+                self.decay_time = etime
+            else:
+                print("reset passthru %s: %d" % (str(self.code), etime))
+                self.set_passthru(False, 0)
+        elif aval > CANCEL_VALUE:
+            # if the move is large enough, pass it thru, reset everything
+            print("large delta, passthru %s: %d" % (str(self.code), etime))
+            self.set_passthru(True, etime)
+        elif abs(self.delta_accumulator) == 0 or (within_time_threshold and within_move_threshold):
+            # cancel the move, accumulate vector, record time if necessary
+            print("accumulating %s (delta total: %d)" % (str(self.code), self.delta_accumulator))
+            if self.start_accumulator_time == 0:
+                self.start_accumulator_time = etime
+            self.delta_accumulator += event.value
 
-                if e.code == libevdev.EV_REL.REL_X:
-                    decay_time_not_reached = (to_ms(e) - x_decay_ms) < DECAY_TIME
+            new_event = libevdev.InputEvent(self.code, value=0, sec=event.sec, usec=event.usec)
+        elif not within_time_threshold and within_move_threshold:
+            # if we reach the timeout without hitting the cumulative threshold, skip the event, and reset
+            print("accumulate time threshold reached for %s, reset" % str(self.code))
+            self.start_accumulator_time = 0
+            self.delta_accumulator = 0
 
-                    within_time_threshold = (to_ms(e) - x_start_ms) < TIMEOUT
-                    within_move_threshold = abs(x_accumulator) < THRESHOLD
+            new_event = libevdev.InputEvent(self.code, value=0, sec=event.sec, usec=event.usec)
+        else:
+            # we've reached threshold, pass events unchanged, until decay is reached.
+            print("reached threshold, passthru start %s" % str(self.code))
+            self.set_passthru(True, etime)
 
-                    if x_passthru:
-                        if decay_time_not_reached:
-                            print("continue passthru x: %d" % to_ms(e))
-                            x_decay_ms = to_ms(e)
-                        else:
-                            print("reset passthru x: %d" % to_ms(e))
+        self.send_event(new_event)
+        return True
 
-                            x_passthru = False
+    def set_passthru(self, passthru, etime):
+        self.passthru = passthru
 
-                    elif aval > CANCEL_VALUE:
-                        # if the move is large enough, pass it thru, reset everything
-                        x_start_ms = 0
-                        x_accumulator = 0
-                        x_passthru = True
-                        x_decay_ms = to_ms(e)
+        self.start_accumulator_time = 0
+        self.delta_accumulator = 0
 
-                        print("large delta, passthru x: %d" % to_ms(e))
-                    elif abs(x_accumulator) == 0 or (within_time_threshold and within_move_threshold):
-                        # cancel the move, accumulate vector, record time if necessary
-                        print("accumulating x (%d)" % x_accumulator)
+        if passthru:
+            self.decay_time = etime
+        else:
+            self.decay_time = 0
 
-                        if x_start_ms == 0:
-                            x_start_ms = to_ms(e)
-                        x_accumulator += val
-                        e = libevdev.InputEvent(libevdev.EV_REL.REL_X, value=0, sec=e.sec, usec=e.usec)
-                    # if we reach the timeout without hitting the cumulative threshold, skip the event, and reset
-                    elif not within_time_threshold and within_move_threshold:
-                        print("accumulate time threshold reached, reset x: %d" % to_ms(e))
-                        x_start_ms = 0
-                        x_accumulator = 0
-                        e = libevdev.InputEvent(libevdev.EV_REL.REL_X, value=0, sec=e.sec, usec=e.usec)
-                        uidev.send_events([e])
-                    else:
-                        print("reached threshold, passthru start x: %d" % to_ms(e))
-                        # we've reached threshold, pass events unchanged, until decay is reached.
-                        x_passthru = True
-                        x_decay_ms = to_ms(e)
-                        x_start_ms = 0
-                        x_accumulator = 0
+    def send_event(self, event):
+        self.out_device.send_events([event])
 
-                if e.code == libevdev.EV_REL.REL_Y:
-                    decay_time_not_reached = (to_ms(e) - y_decay_ms) < DECAY_TIME
+class Main(object):
+    def __init__(self, args):
+        self.path = args[1]
 
-                    within_time_threshold = (to_ms(e) - y_start_ms) < TIMEOUT
-                    within_move_threshold = abs(y_accumulator) < THRESHOLD
+        self.fd = open(self.path, 'rb')
+        self.in_device = libevdev.Device(self.fd)
+        self.in_device.grab()
+        self.out_device = self.in_device.create_uinput_device()
+        print('Device is at {}'.format(self.out_device.devnode))
 
-                    if y_passthru:
-                        if decay_time_not_reached:
-                            print("continue passthru y: %d" % to_ms(e))
-                            y_decay_ms = to_ms(e)
-                        else:
-                            print("reset passthru y: %d" % to_ms(e))
+        self.x_handler = EventHandler(self.in_device, self.out_device, libevdev.EV_REL.REL_X)
+        self.y_handler = EventHandler(self.in_device, self.out_device, libevdev.EV_REL.REL_Y)
 
-                            y_passthru = False
+    def start_events(self):
+        while True:
+            for e in self.in_device.events():
+                if (not self.x_handler.handle_event(e)) and (not self.y_handler.handle_event(e)):
+                    self.out_device.send_events([e])
 
-                    elif aval > CANCEL_VALUE:
-                        # if the move is large enough, pass it thru, reset everything
-                        y_start_ms = 0
-                        y_accumulator = 0
-                        y_passthru = True
-                        y_decay_ms = to_ms(e)
-
-                        print("large delta, passthru y: %d" % to_ms(e))
-                    elif abs(y_accumulator) == 0 or (within_time_threshold and within_move_threshold):
-                        # cancel the move, accumulate vector, record time if necessary
-                        print("accumulating y (%d)" % y_accumulator)
-
-                        if y_start_ms == 0:
-                            y_start_ms = to_ms(e)
-                        y_accumulator += val
-                        e = libevdev.InputEvent(libevdev.EV_REL.REL_Y, value=0, sec=e.sec, usec=e.usec)
-                    # if we reach the timeout without hitting the cumulative threshold, skip the event, and reset
-                    elif not within_time_threshold and within_move_threshold:
-                        print("accumulate time threshold reached, reset y: %d" % to_ms(e))
-                        y_start_ms = 0
-                        y_accumulator = 0
-                        e = libevdev.InputEvent(libevdev.EV_REL.REL_Y, value=0, sec=e.sec, usec=e.usec)
-                        uidev.send_events([e])
-                    else:
-                        print("reached threshold, passthru start y: %d" % to_ms(e))
-                        # we've reached threshold, pass events unchanged, until decay is reached.
-                        y_passthru = True
-                        y_decay_ms = to_ms(e)
-                        y_start_ms = 0
-                        y_accumulator = 0
-            uidev.send_events([e])
+    def stop_events(self):
+        close(fd)
 
 if __name__ == "__main__":
-    main(sys.argv)
+    Main(sys.argv).start_events()
+
