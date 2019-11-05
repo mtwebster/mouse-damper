@@ -23,15 +23,16 @@ time.
 
 This is tracked separately for both x and y
 
-for now, to run:
+to run:
 
 ```
-cat /proc/bus/input/devices  # look for your mouse, look at the Handlers line, and the event code (event11 for instance)
-
 # as root or with sudo 
 
-sudo ./mouse-damper.py /dev/input/event11 
+sudo ./mouse-damper.py [verbose]
 ```
+Verbose will spew a great deal of event info
+
+The program will crawl `/dev/input` and gather up any mouse-type devices, and begin filtering them automatically.  For now you can ctrl-c or kill the main process (it uses python multiprocessing for individual devices).
 
 This is really really rough for now, I hope to clean it up, optimize (maybe re-write in C) once I can get the
 behavior worked out.
