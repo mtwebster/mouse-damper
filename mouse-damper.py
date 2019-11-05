@@ -118,7 +118,7 @@ class MouseDevice(multiprocessing.Process):
         self.input_device = libevdev.Device(fd)
         self.output_device = self.input_device.create_uinput_device()
 
-        log("Mousedevice Init for %s: redirected from %s to %s" % (self.input_device.name, self.name, self.output_device.devnode))
+        print("Mousedevice Init for %s: redirected from %s to %s" % (self.input_device.name, self.name, self.output_device.devnode))
 
         self.x_handler = EventHandler(self.input_device, self.output_device, libevdev.EV_REL.REL_X)
         self.y_handler = EventHandler(self.input_device, self.output_device, libevdev.EV_REL.REL_Y)
@@ -136,10 +136,9 @@ class MouseDevice(multiprocessing.Process):
                     self.output_device.send_events([e])
         finally:
             log("Thread interrupted for %s" % self.input_device.name)
-        print("interrupt?")
 
     def close(self):
-        log("Closing %s (redirected to %s)" % (self.input_device.name, self.name))
+        print("Closing %s (redirected to %s)" % (self.input_device.name, self.name))
         self.terminate()
         self.join()
 
