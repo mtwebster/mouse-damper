@@ -1,5 +1,5 @@
 # mouse-damper
-an attempt to use libevdev to dampen small pointer movements to help people with hand tremors
+an attempt to use libevdev to dampen small pointer movements to help people with hand tremors. I'm no expert, just someone who has to deal with this, and all my observation and reasoning here is from my own experience.
 
 
 For people with a hand tremor ('essential tremor' in my case) it can be difficult to be precise with a mouse
