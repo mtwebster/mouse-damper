@@ -23,13 +23,16 @@ time.
 
 This is tracked separately for both x and y
 
+to compile:
+```
+./build
+```
 to run:
-
 ```
-# as root or with sudo 
-
-sudo ./mouse-damper.py [verbose]
+mouse-damper-launch [verbose]
 ```
+************ at his time, the setuid bit is used to allow the binary to be launched as root **************
+
 Verbose will spew a great deal of event info
 
 The program will crawl `/dev/input` and gather up any mouse-type devices, and begin filtering them automatically.  For now you can ctrl-c or kill the main process (it uses python multiprocessing for individual devices).
