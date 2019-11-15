@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 
+
+
 import sys
 import os
 import libevdev
-import fcntl
 import setproctitle
-import ctypes
 import signal
 import multiprocessing
-import time
 
 setproctitle.setproctitle("mouse-damper")
 
@@ -31,7 +30,7 @@ def log(txt):
     if not VERBOSE:
         return
 
-    print(txt, flush=True)
+    print(txt)
 
 def reduce_vector(value, fraction=1.0):
     reduction = int(abs(value) * fraction) + 1
