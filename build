@@ -1,0 +1,17 @@
+#!/bin/bash
+
+echo Creating copy of source
+
+cp mouse-damper.py mousedamper.pyx
+echo Generating mousedamper.c using cython
+
+cython3 mousedamper.pyx --embed
+echo Compiling into binary
+
+gcc -Os $(pkg-config python3 --cflags)  -o mouse-damper  mousedamper.c $(pkg-config python3 --libs)
+echo Changing permissions to root with setuid!!
+
+sudo chown root:root mouse-damper
+sudo chmod u+s mouse-damper
+echo
+echo Run ./mouse-damper-launch

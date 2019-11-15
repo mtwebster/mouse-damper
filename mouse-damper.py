@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-
-
 import sys
 import os
 import libevdev
@@ -20,11 +18,13 @@ THRESHOLD_TIMEOUT = 500 * USEC_IN_MSEC # time to cancel tiny events
 
 DECAY_TIME = 100 * USEC_IN_MSEC # time after reaching threshold before resetting everything (settle time)
 
-DOUBLE_CLICK_WAIT_TIME = 400 * USEC_IN_MSEC # GtkSettings::gtk-double-click-time default value
+DOUBLE_CLICK_WAIT_TIME = int(sys.argv[2]) * USEC_IN_MSEC # GtkSettings::gtk-double-click-time
+DOUBLE_CLICK_DISTANCE = int(sys.argv[3]) * USEC_IN_MSEC # GtkSettings::gtk-double-click-distance
+DND_THRESHOLD = int(sys.argv[4]) * USEC_IN_MSEC # GtkSettings::gtk-dnd-drag-threshold
 
 BUTTONS = (libevdev.EV_KEY.BTN_LEFT, libevdev.EV_KEY.BTN_RIGHT, libevdev.EV_KEY.BTN_MIDDLE)
 
-VERBOSE = len(sys.argv) == 2 and sys.argv[1] == "verbose"
+VERBOSE = sys.argv[1] == "verbose"
 
 def log(txt):
     if not VERBOSE:
