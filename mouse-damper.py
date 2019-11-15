@@ -33,8 +33,8 @@ def log(txt):
 
     print(txt, flush=True)
 
-def reduce_vector(value):
-    reduction = int(abs(value) / 2) + 1
+def reduce_vector(value, fraction=1.0):
+    reduction = int(abs(value) * fraction) + 1
 
     if value < 0:
         reduction *= -1
@@ -100,10 +100,18 @@ class MotionEventHandler(object):
 
         new_event = event
 
+        if self.device_obj.button_freeze_for_dc:
+            if etime - self.device_obj.button_freeze_time < DOUBLE_CLICK_WAIT_TIME:
+                log("motion within double-click timeout, cancel motion: %d" % etime)
+                return True # eat motion, within double-click delay
+            else:
+                self.device_obj.button_freeze_time = 0
+                self.device_obj.button_freeze_for_dc = False
+
         if self.device_obj.button_down:
             log("button pressed, cancel any passthru, force reduction: %d" % etime)
 
-            reduction = reduce_vector(event.value)
+            reduction = reduce_vector(event.value, .7)
             new_event = libevdev.InputEvent(self.code, value=reduction, sec=event.sec, usec=event.usec)
         elif self.passthru:
             if decay_time_not_reached:
@@ -122,7 +130,7 @@ class MotionEventHandler(object):
             if self.start_accumulator_time == 0:
                 self.start_accumulator_time = etime
 
-            reduction = reduce_vector(event.value)
+            reduction = reduce_vector(event.value, .5)
             self.delta_accumulator += reduction
 
             new_event = libevdev.InputEvent(self.code, value=reduction, sec=event.sec, usec=event.usec)
