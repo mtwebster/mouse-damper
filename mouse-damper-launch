@@ -16,7 +16,7 @@ double_click_distance = settings.get_property("gtk-double-click-distance")
 drag_threshold = settings.get_property("gtk-dnd-drag-threshold")
 verbose = len(sys.argv) == 2 and sys.argv[1] == "verbose"
 
-res = subprocess.run(["/home/mtwebster/bin/mouse-damper/mouse-damper",
+res = subprocess.run([os.path.join(os.getcwd(), "mouse-damper"),
                       "verbose" if verbose else "terse",
                       str(double_click_time),
                       str(double_click_distance),
