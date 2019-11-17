@@ -3,13 +3,13 @@ project('mouse-damper',
   version : '0.1.0'
 )
 
-gnome = import('gnome')
 pkg = import('pkgconfig')
 i18n = import('i18n')
 
-cdata = configuration_data()
-cdata.set('GETTEXT_PACKAGE', '"mouse-damper"')
+# cdata = configuration_data()
+# cdata.set('GETTEXT_PACKAGE', '"mouse-damper"')
 
+libexec_path = join_paths(get_option('prefix'), get_option('libexecdir'), 'mouse-damper', 'mouse-damper')
 
 ##############  Compile python then c for main binary
 
@@ -31,12 +31,12 @@ main_binary = executable('mouse-damper',
   install_dir: join_paths(get_option('libexecdir'), 'mouse-damper')
 )
 
+meson.add_install_script('setuid_install_script.py', libexec_path)
+
 ############ Starter script
 
-exec_path = join_paths(get_option('prefix'), get_option('libexecdir'), 'mouse-damper', 'mouse-damper')
-
 conf = configuration_data()
-conf.set('exec', exec_path)
+conf.set('exec', libexec_path)
 
 starter = configure_file(
   input : 'mouse-damper-launch.in',
@@ -47,8 +47,6 @@ starter = configure_file(
 install_data(starter,
   install_dir: get_option('bindir')
 )
-
-meson.add_install_script('setuid_install_script.py', exec_path)
 
 ############# Desktop file
 
