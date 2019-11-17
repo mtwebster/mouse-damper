@@ -25,6 +25,7 @@ time.
 
 - When a drag is initiated (movement while button pressed), motion is slightly reduced to increase accuracy.
 
+dependencies: python3-dev, cython3, python3-libevdev, gtk, python3-setproctitle, gcc,  ???
 to compile:
 ```
 ./build
