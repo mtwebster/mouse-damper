@@ -14,13 +14,13 @@ USEC_IN_SEC = USEC_IN_MSEC * 1000
 
 CANCEL_VALUE = 4 # relative value at or below which events are initially zeroed out
 DELTA_THRESHOLD = 20 # absolute distance until tiny events are no longer halved (jitter becomes intentional movement)
+BUTTON_FREEZE_DELTA_THRESHOLD = 50 # absolute distance until tiny events are no longer halved (jitter becomes intentional movement)
 THRESHOLD_TIMEOUT = 500 * USEC_IN_MSEC # time to cancel tiny events
-
 DECAY_TIME = 100 * USEC_IN_MSEC # time after reaching threshold before resetting everything (settle time)
-
 DOUBLE_CLICK_WAIT_TIME = int(sys.argv[2]) * USEC_IN_MSEC # GtkSettings::gtk-double-click-time
-DOUBLE_CLICK_DISTANCE = int(sys.argv[3]) * USEC_IN_MSEC # GtkSettings::gtk-double-click-distance
-DND_THRESHOLD = int(sys.argv[4]) * USEC_IN_MSEC # GtkSettings::gtk-dnd-drag-threshold
+
+#DOUBLE_CLICK_DISTANCE = int(sys.argv[3]) * USEC_IN_MSEC # GtkSettings::gtk-double-click-distance
+#DND_THRESHOLD = int(sys.argv[4]) * USEC_IN_MSEC # GtkSettings::gtk-dnd-drag-threshold
 
 BUTTONS = (libevdev.EV_KEY.BTN_LEFT, libevdev.EV_KEY.BTN_RIGHT, libevdev.EV_KEY.BTN_MIDDLE)
 
@@ -96,13 +96,12 @@ class MotionEventHandler(object):
         decay_time_not_reached = (etime - self.decay_time) < DECAY_TIME
         within_time_threshold = (etime - self.start_accumulator_time) < THRESHOLD_TIMEOUT
         within_move_threshold = abs(self.delta_accumulator) < DELTA_THRESHOLD
-        within_button_press_freeze_cancel_threshold = abs(self.device_obj.button_freeze_delta_accumulator) < DELTA_THRESHOLD * 2
+        within_button_freeze_motion_threshold = abs(self.device_obj.button_freeze_delta_accumulator) < BUTTON_FREEZE_DELTA_THRESHOLD
 
         new_event = event
 
         if self.device_obj.button_freeze_for_dc:
-            if etime - self.device_obj.button_freeze_time < DOUBLE_CLICK_WAIT_TIME and \
-               within_button_press_freeze_cancel_threshold:
+            if etime - self.device_obj.button_freeze_time < DOUBLE_CLICK_WAIT_TIME and within_button_freeze_motion_threshold:
                 reduction = reduce_vector(event.value, .7)
                 self.device_obj.button_freeze_delta_accumulator += reduction
 
