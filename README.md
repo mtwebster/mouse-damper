@@ -1,5 +1,5 @@
 # mouse-damper
-an attempt to use libevdev to dampen small pointer movements to help people with hand tremors. I'm no expert, just someone who has to deal with this, and all my observation and reasoning here is from my own experience.
+an attempt to use libevdev to dampen certain pointer events to help people with hand tremors. I'm no expert, just someone who has to deal with this, and all my observation and reasoning here is from my own experience.
 
 
 For people with a hand tremor ('essential tremor' in my case) it can be difficult to be precise with a mouse
@@ -10,7 +10,7 @@ while still allowing full movement/response when needed.
 
 The premise is:
 
-- Any tiny movement (a delta of 2 or less) is ignored, unless the accumulated delta exceeds a threshold within a certain
+- Any tiny movement (a delta of 2 or less) is halved, unless the accumulated delta exceeds a threshold within a certain
 time.
 
 - If the time limit is reached without reaching the threshold, the time mark and delta accumulator are reset.
@@ -21,7 +21,9 @@ time.
 
 - Once the time between events exceeds the decay limit, the whole thing is started over again.
 
-This is tracked separately for both x and y
+- When a button is pressed, all motion is temporarily frozen until either a) the duration from the press meets the user's gtk-double-click-time, or b) enough x or y motion is accumulated within that time limit to assume the motion is deliberate.  This is to prevent accidental dnd when attempting to double-click on a ui element.
+
+- When a drag is initiated (movement while button pressed), motion is slightly reduced to increase accuracy.
 
 to compile:
 ```
