@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=mouse-damper
+Comment=Start mouse-damper
+Exec=@exec@
+NoDisplay=false
