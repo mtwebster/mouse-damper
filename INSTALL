@@ -22,3 +22,7 @@ sudo ninja -C builddir install
 Uninstall:
 
 sudo ninja -C builddir uninstall
+
+To run:
+
+mouse-damper-launch [verbose]
