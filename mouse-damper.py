@@ -96,16 +96,25 @@ class MotionEventHandler(object):
         decay_time_not_reached = (etime - self.decay_time) < DECAY_TIME
         within_time_threshold = (etime - self.start_accumulator_time) < THRESHOLD_TIMEOUT
         within_move_threshold = abs(self.delta_accumulator) < DELTA_THRESHOLD
+        within_button_press_freeze_cancel_threshold = abs(self.device_obj.button_freeze_delta_accumulator) < DELTA_THRESHOLD * 2
 
         new_event = event
 
         if self.device_obj.button_freeze_for_dc:
-            if etime - self.device_obj.button_freeze_time < DOUBLE_CLICK_WAIT_TIME:
-                log("motion within double-click timeout, cancel motion: %d" % etime)
+            if etime - self.device_obj.button_freeze_time < DOUBLE_CLICK_WAIT_TIME and \
+               within_button_press_freeze_cancel_threshold:
+                reduction = reduce_vector(event.value, .7)
+                self.device_obj.button_freeze_delta_accumulator += reduction
+
+                log("motion within double-click timeout, accumulate (delta total: %d) and cancel motion: %d"
+                    % (self.device_obj.button_freeze_delta_accumulator, etime))
+
                 return True # eat motion, within double-click delay
             else:
                 self.device_obj.button_freeze_time = 0
                 self.device_obj.button_freeze_for_dc = False
+                self.device_obj.button_freeze_delta_accumulator = 0
+                log("button freeze motion threshold reached or double-click timeout met - canceling freeze: %d" % etime)
 
         if self.device_obj.button_down:
             log("button pressed, cancel any passthru, force reduction: %d" % etime)
@@ -174,6 +183,7 @@ class MouseDevice(multiprocessing.Process):
 
         # These need to be available to all 3 handlers, not nice for now
         self.button_freeze_time = 0
+        self.button_freeze_delta_accumulator = 0
         self.button_freeze_for_dc = False
         self.button_down = False
 
