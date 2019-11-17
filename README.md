@@ -25,18 +25,9 @@ time.
 
 - When a drag is initiated (movement while button pressed), motion is slightly reduced to increase accuracy.
 
-dependencies: python3-dev, cython3, python3-libevdev, gtk, python3-setproctitle, gcc,  ???
-to compile:
-```
-./build
-```
-to run:
-```
-mouse-damper-launch [verbose]
-```
-************ at his time, the setuid bit is used to allow the binary to be launched as root **************
+To build and install, see the INSTALL file.
 
-Verbose will spew a great deal of event info
+************ at his time, the setuid bit is used to allow the binary to be launched as root **************
 
 The program will crawl `/dev/input` and gather up any mouse-type devices, and begin filtering them automatically.  For now you can ctrl-c or kill the main process (it uses python multiprocessing for individual devices).
 
