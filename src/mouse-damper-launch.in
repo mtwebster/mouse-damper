@@ -1,0 +1,50 @@
+#!/usr/bin/env python3
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
+# Copyright 2020 Michael Webster <miketwebster@gmail.com>
+
+import sys
+import subprocess
+
+import gi
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk, Gio, GLib
+
+double_click_time = Gtk.Settings.get_default().get_property("gtk-double-click-time")
+
+# This is just to ensure the folder is made user:user ownership.  mouse-damper is setuid
+# and if the folder doesn't already exist it would end up making it root-owned, and the
+# configuration program won't be able to save changes.
+
+settings = Gio.Settings(schema_id="org.mtw.mouse-damper")
+
+delta_val = settings.get_int("delta-threshold")
+
+user_double_click_time = settings.get_int("double-click-time-override")
+double_click_time = max(double_click_time, user_double_click_time)
+
+verbose = len(sys.argv) == 2 and sys.argv[1] == "verbose"
+
+try:
+    res = subprocess.run([
+        "@exec@",
+        "verbose" if verbose else "terse",
+        str(double_click_time),
+        str(delta_val)
+    ])
+except KeyboardInterrupt:
+    exit(0)
+
+exit(res.returncode)

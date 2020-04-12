@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Configure mouse-damper
+Comment=Adjust mouse-damper movement and click settings
+Exec=python3 /usr/libexec/mousedamper/mousedamper-config.py
+Icon=system-run
+Type=Application
+Categories=GNOME;GTK;Settings;DesktopSettings;
+StartupNotify=false
