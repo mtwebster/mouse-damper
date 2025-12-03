@@ -1,35 +1,32 @@
 # mouse-damper
-This is an attempt to use libevdev to dampen certain pointer events to help
-people with hand tremors. I'm no expert, just someone who has to deal with this.
 
-For people with a hand tremor it can be difficult to be precise with a mouse,
-particularly when trying to target and click or double-click elements on the
-screen - often an unintentional drag can be started, or the target missed on a
-double-click (where the initial click may have bumped the position enough to
-miss the intended target) - whatever the case, this is an attempt to cancel
-out some of these small, unintentional movements, while trying not to get in the
-way of normal movement and response when needed.
+A utility that helps prevent accidental clicks and drag operations caused by hand tremors or unsteady mouse movements.
 
-This is really really quite rough at the moment, no warranty. :)
+## The Problem
 
-### How it works
-The program will crawl `/dev/input` and gather up any mouse-type devices, and
-begin filtering them automatically. For now you can ctrl-c or kill the main
-process (it uses python multiprocessing for individual devices).
+For people with hand tremors or conditions like essential tremor, using a mouse can be frustrating. Small, involuntary movements between pressing and releasing a mouse button often lead to:
 
-The toolkit libraries that graphical applications use (like GTK, QT) have some
-preventatives for unintentional mouse movement. They are of limited effectiveness,
-however, and do nothing to prevent mis-targeting on a button-release.
+- **Missed clicks** - The pointer drifts slightly, causing you to click the wrong element
+- **Accidental drags** - Movement during a click is interpreted as a drag operation
+- **Failed double-clicks** - The pointer moves between the first and second click, missing the target
 
-The way these issues are addressed by this program is the pointer is frozen in
-place when a button is pressed. At this point, two things begin to be tracked -
-elapsed time and physical mouse movement. The freeze is removed when one of the
-following three events takes place:
+While toolkit libraries (GTK, Qt) have some built-in tolerance for small movements, they're limited in effectiveness and don't prevent mis-targeting on button-release events.
 
-- The user proceeds to complete a double-click (a click, release, and second 
-  click within a certain duration).
-- The double-click timeout is exceeded.
-- The physical mouse movement from the freeze point exceeds a configurable
-  threshold. While this is by no means a perfect solution, it at least allows
-  the user to act on their intended target, without being affected by
-  uncontrollable physical movement.
+## How It Works
+
+Mousedamper solves this by freezing the pointer in place when you press a mouse button. The freeze continues until one of three conditions is met:
+
+1. **Double-click completion** - You complete a double-click (press, release, press within the timeout period)
+2. **Timeout expires** - The double-click timeout period passes
+3. **Movement threshold exceeded** - You move the physical mouse beyond a configurable distance
+
+This ensures that the pointer stays exactly where you clicked, preventing drift from affecting your actions. When you intentionally move the mouse beyond the threshold, normal movement resumes immediately.
+
+## Technical Details
+
+Mousedamper uses libevdev to intercept mouse input events at the `/dev/input` level. It automatically discovers and filters all mouse-type devices, applying the pointer freeze logic before events reach the desktop environment. The program requires root privileges to access input devices and is installed as a setuid binary.
+
+Configuration is managed through GSettings and includes:
+- Enable/disable on session start
+- Breakout threshold (how far you must move to unfreeze)
+- Optional double-click timeout override

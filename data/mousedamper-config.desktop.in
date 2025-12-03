@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Configure mousedamper
+Comment=Adjust mousedamper movement and click settings
+Exec=@prefs_path@
+Icon=input-mouse
+Type=Application
+Categories=GNOME;GTK;Settings;DesktopSettings;
+StartupNotify=false

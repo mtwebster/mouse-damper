@@ -19,22 +19,25 @@ import os
 import gettext
 import sys
 
-from xapp.SettingsWidgets import SettingsWidget, SettingsPage, Range
+from xapp.SettingsWidgets import SettingsWidget, SettingsPage
+from xapp.GSettingsWidgets import GSettingsSwitch, GSettingsRange, GSettingsSpinButton
 from gi.repository import Gtk, Gio
 
 _ = gettext.gettext
 
+MOUSEDAMPER_SCHEMA_ID = "org.mtw.mousedamper"
+KEY_ENABLED = "enabled"
+KEY_DELTA_THRESHOLD = "delta-threshold"
+KEY_OVERRIDE_GTK_DOUBLE_CLICK = "override-gtk-double-click-time"
+KEY_DOUBLE_CLICK_TIME_OVERRIDE = "double-click-time-override"
+
 gtk_settings = Gtk.Settings.get_default()
 system_double_click_time = gtk_settings.get_property("gtk-double-click-time")
-
-settings = Gio.Settings(schema_id="org.mtw.mouse-damper")
-delta_val = settings.get_int("delta-threshold")
-user_double_click_time = settings.get_int("double-click-time-override")
-double_click_time = max(system_double_click_time, user_double_click_time)
 
 class Preferences(Gtk.Window):
     def __init__(self):
         Gtk.Window.__init__(self)
+        self.set_title(_("Mousedamper Configuration"))
         self.connect("delete-event", lambda w, e: Gtk.main_quit())
         self.set_size_request(800, -1)
         self.set_default_size(800, -1)
@@ -52,78 +55,44 @@ class Preferences(Gtk.Window):
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         widget.pack_start(box, False, False, 0)
         label = Gtk.Label(wrap=True, xalign=0.0, use_markup=True, label=_(
-            "<b>What this does</b>\n\n"
-            "This program is intended to make mouse click actions a bit more forgiving for "
-            "people suffering from essential tremor or other similar afflictions. Often when "
-            "attempting to click items on the screen, due to the fact that many actions are only "
-            "triggered on button-<i>release</i>, one can end up performing unintended actions if "
-            "the mouse position moves from its original position between button-press and -release. "
-            "This can range from accidentally invoking a drag operation to activating some adjacent "
-            "element to the one you had originally intended. The toolkit libraries that "
-            "graphical applications use (GTK, QT) have some preventatives for unintentional mouse "
-            "movement, however they are of limited effectiveness, and do nothing to prevent mis-targeting "
-            "on a button-release.\n\n"
-            "The way these issues are addressed by this program is the pointer is frozen in place when "
-            "a button is pressed. At this point, two things begin to be tracked - elapsed time and "
-            "physical mouse movement. The freeze is removed when one of the following three events "
-            "takes place:\n\n"
-            "• The user proceeds to complete a double-click (a click, release, and second click within "
-            "a certain duration).\n"
-            "• The double-click timeout is exceeded.\n"
-            "• The physical mouse movement from the freeze point exceeds a configurable threshold.\n\n"
-            "While this is by no means a perfect solution, it at least allows the user to act on their "
-            "intended target, without being affected by uncontrollable physical movement."
+            "Mousedamper helps prevent accidental clicks and drag operations caused by hand tremors "
+            "or unsteady mouse movements.\n\n"
+            "When you press a mouse button, the pointer is frozen in place until either you complete "
+            "a double-click, the double-click timeout expires, or you move the mouse beyond the "
+            "breakout threshold. This prevents the pointer from drifting between button-press and "
+            "button-release, ensuring you click exactly where you intend."
         ))
         box.pack_start(label, False, False, 0)
         section.add_row(widget)
 
-        section = page.add_section(_("Movement threshold"))
+        section = page.add_section(_("Autostart"))
 
-        widget = SettingsWidget()
+        switch = GSettingsSwitch(_("Launch mousedamper when the session starts"), MOUSEDAMPER_SCHEMA_ID, KEY_ENABLED)
+        section.add_row(switch)
 
-        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        widget.pack_start(box, False, False, 0)
-        label = Gtk.Label(wrap=True, xalign=0.0, use_markup=True, label=_(
-            "<b>Distance at which the mouse will become unfrozen.</b>\n\n"
-            "This is the straight-line distance from the initial click point "
-            "- the value does not simply accumulate all movement"
-        ))
-        box.pack_start(label, False, False, 0)
-        section.add_row(widget)
+        section = page.add_section(_("Movement"))
 
-        widget = KeyfileRange("",
-                              mini=50, maxi=1000, step=10, key="delta-threshold",
-                              show_value=True)
+        slider = GSettingsRange(_("Breakout threshold"), MOUSEDAMPER_SCHEMA_ID, KEY_DELTA_THRESHOLD,
+            _("Lower"), _("Higher"), mini=50, maxi=1000, step=5, show_value=True,
+            tooltip=_("The distance the pointer must move while frozen before the freeze is removed and normal movement resumes.")
+        )
+        slider.content_widget.add_mark(100, Gtk.PositionType.TOP, None)
+        section.add_row(slider)
 
-        section.add_row(widget)
+        section = page.add_section(_("Clicks"))
+
+        switch = GSettingsSwitch(_("Override system double-click time (currently %dms)") % system_double_click_time,
+            MOUSEDAMPER_SCHEMA_ID, KEY_OVERRIDE_GTK_DOUBLE_CLICK
+        )
+        section.add_row(switch)
+
+        spinner = GSettingsSpinButton(_("Double-click time"), MOUSEDAMPER_SCHEMA_ID, KEY_DOUBLE_CLICK_TIME_OVERRIDE,
+            mini=100, maxi=2000, step=10,
+            tooltip=_("The maximum time between clicks to register a double-click, in milliseconds.")
+        )
+        section.add_reveal_row(spinner, MOUSEDAMPER_SCHEMA_ID, KEY_OVERRIDE_GTK_DOUBLE_CLICK)
 
         self.show_all()
-
-class KeyfileRange(Range):
-
-    def __init__(self, *args, **kargs):
-        self.key = kargs.pop("key")
-
-        super(KeyfileRange, self).__init__(*args, **kargs)
-
-        self.set_spacing(6)
-        self.label.hide()
-        self.label.set_no_show_all(True)
-        self.settings = settings
-
-        self.content_widget.set_value(self.settings.get_int(self.key))
-
-    def set_value(self, value):
-        pass
-
-    def get_value(self):
-        pass
-
-    def get_range(self):
-        pass
-
-    def apply_later(self, *args):
-        self.settings.set_int(self.key, self.content_widget.get_value())
 
 if __name__ == "__main__":
     main = Preferences()

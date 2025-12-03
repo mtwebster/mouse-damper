@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<schemalist>
+  <schema id="org.mtw.mousedamper" path="/org/mtw/mousedamper/">
+    <key name="enabled" type="b">
+      <default>true</default>
+      <summary>Enable mouse damper</summary>
+      <description>When enabled, mouse damper will run at login to stabilize mouse clicks.</description>
+    </key>
+    <key name="delta-threshold" type="i">
+      <default>100</default>
+      <range min="50" max="1000"/>
+      <summary>The distance traveled while the mouse button is down before unfreezing movement.</summary>
+      <description>When you depress a mouse button, movement will be temporarily frozen.  The freeze gets cancelled if the mouse moves this amount in any direction while the button is depressed.</description>
+    </key>
+    <key name="override-gtk-double-click-time" type="b">
+      <default>false</default>
+      <summary>Override system double-click time</summary>
+      <description>When enabled, use the custom double-click-time-override value instead of the system GTK setting.</description>
+    </key>
+    <key name="double-click-time-override" type="i">
+      <default>400</default>
+      <range min="0" max="2000"/>
+      <summary>Custom double-click time in milliseconds</summary>
+      <description>The maximum time between two clicks to consider them a double-click event. Only used when override-gtk-double-click-time is enabled.</description>
+    </key>
+  </schema>
+</schemalist>

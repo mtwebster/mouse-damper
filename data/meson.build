@@ -1,4 +1,4 @@
-install_data('org.mtw.mouse-damper.gschema.xml',
+install_data('org.mtw.mousedamper.gschema.xml',
     install_dir: join_paths(get_option('datadir'), 'glib-2.0', 'schemas')
 )
 meson.add_install_script('meson_install_schemas.py')
@@ -6,16 +6,23 @@ meson.add_install_script('meson_install_schemas.py')
 ############# Desktop file
 
 conf = configuration_data()
-conf.set('exec', join_paths(get_option('prefix'), get_option('bindir'), 'mouse-damper-launch'))
+conf.set('exec', join_paths(bindir, 'mousedamper-launch'))
 
 desktop_file = configure_file(
-  input : 'mouse-damper.desktop.in',
-  output: 'mouse-damper.desktop',
+  input : 'mousedamper.desktop.in',
+  output: 'mousedamper.desktop',
   configuration: conf,
   install: true,
   install_dir: join_paths(get_option('sysconfdir'), 'xdg', 'autostart')
 )
 
-install_data('mouse-damper-config.desktop',
-    install_dir: join_paths(get_option('datadir'), 'applications')
+prefs_conf = configuration_data()
+prefs_conf.set('prefs_path', join_paths(exec_path, 'mousedamper-config.py'))
+
+desktop_file = configure_file(
+  input : 'mousedamper-config.desktop.in',
+  output: 'mousedamper-config.desktop',
+  configuration: prefs_conf,
+  install: true,
+  install_dir: join_paths(sys_data_dir, 'applications')
 )
