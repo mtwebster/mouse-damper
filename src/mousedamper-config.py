@@ -18,10 +18,11 @@
 import os
 import gettext
 import sys
+import subprocess
 
 from xapp.SettingsWidgets import SettingsWidget, SettingsPage
 from xapp.GSettingsWidgets import GSettingsSwitch, GSettingsRange, GSettingsSpinButton
-from gi.repository import Gtk, Gio
+from gi.repository import Gtk, Gio, GLib
 
 _ = gettext.gettext
 
@@ -92,7 +93,27 @@ class Preferences(Gtk.Window):
         )
         section.add_reveal_row(spinner, MOUSEDAMPER_SCHEMA_ID, KEY_OVERRIDE_GTK_DOUBLE_CLICK)
 
+        # Monitor GSettings for changes and restart mousedamper when settings change
+        self.settings = Gio.Settings(schema_id=MOUSEDAMPER_SCHEMA_ID)
+        self.settings.connect("changed", self.on_settings_changed)
+        self.restart_timeout_id = 0
+
         self.show_all()
+
+    def on_settings_changed(self, settings, key):
+        if self.restart_timeout_id != 0:
+            GLib.source_remove(self.restart_timeout_id)
+
+        self.restart_timeout_id = GLib.timeout_add(100, self.restart_mousedamper)
+
+    def restart_mousedamper(self):
+        subprocess.run(["killall", "mousedamper"], stderr=subprocess.DEVNULL, check=False)
+
+        if self.settings.get_boolean(KEY_ENABLED):
+            subprocess.Popen(["mousedamper-launch"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+        self.restart_timeout_id = 0
+        return GLib.SOURCE_REMOVE
 
 if __name__ == "__main__":
     main = Preferences()
