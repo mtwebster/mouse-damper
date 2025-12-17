@@ -98,6 +98,10 @@ class Preferences(Gtk.Window):
         self.settings.connect("changed", self.on_settings_changed)
         self.restart_timeout_id = 0
 
+        theme = Gtk.IconTheme.get_default()
+        if theme.has_icon("mousedamper"):
+            self.set_icon_name("mousedamper")
+
         self.show_all()
 
     def on_settings_changed(self, settings, key):
