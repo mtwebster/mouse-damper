@@ -1,56 +1,29 @@
-glib_dep = dependency('glib-2.0', version: '>= 2.50')
-libevdev_dep = dependency('libevdev')
-math_dep = meson.get_compiler('c').find_library('m', required: true)
+# Main mousedamper sources
+mousedamper_sources = files('mousedamper.c')
 
-mousedamper_sources = ['mousedamper.c']
+# Build common and platform-specific code from subdirectories
+subdir('common')
+subdir('platform')
 
-mousedamper_deps = [
-  glib_dep,
-  libevdev_dep,
-  math_dep,
-]
-
-mousedamper_exe = executable('mousedamper',
-  mousedamper_sources,
-  dependencies: mousedamper_deps,
-  install: true,
-  install_dir: exec_path,
-  install_mode: ['rwsr-xr-x', 'root', 'root']
-)
-
-############ Starter script
-
-main_conf = configuration_data()
-main_conf.set('exec', exec_path / 'mousedamper')
-
-main_starter = configure_file(
-  input : 'mousedamper-launch.in',
-  output: 'mousedamper-launch',
-  configuration: main_conf,
-)
-
-install_data(main_starter,
-  install_dir: get_option('bindir')
-)
-
-########### Config launcher
-
-config_conf = configuration_data()
-config_conf.set('exec', exec_path / 'mousedamper-config.py')
-
-config_starter = configure_file(
-  input : 'mousedamper-config.in',
-  output: 'mousedamper-config',
-  configuration: config_conf,
-)
-
-install_data(config_starter,
-  install_dir: get_option('bindir'),
-  install_mode: ['rwxr-xr-x', 'root', 'root']
-)
-
-install_data(
-  'mousedamper-config.py',
-  install_dir: exec_path,
-  install_mode: ['rwxr-xr-x', 'root', 'root']
-)
+# Build main mousedamper executable
+# platform_sources and platform_deps are populated by platform/*/meson.build
+if host_machine.system() == 'windows'
+  # Windows: console subsystem for daemon
+  mousedamper_exe = executable('mousedamper',
+    mousedamper_sources + common_sources + platform_sources,
+    dependencies: platform_deps,
+    c_args: win7_args,
+    install: true,
+    install_dir: exec_path,
+    win_subsystem: 'console'
+  )
+else
+  # Linux: install with setuid bit for device access
+  mousedamper_exe = executable('mousedamper',
+    mousedamper_sources + common_sources + platform_sources,
+    dependencies: platform_deps,
+    install: true,
+    install_dir: exec_path,
+    install_mode: ['rwsr-xr-x', 'root', 'root']
+  )
+endif

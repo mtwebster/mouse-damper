@@ -1,0 +1,18 @@
+/* Auto-generated build config - do not edit */
+#ifndef MOUSEDAMPER_BUILD_CONFIG_H
+#define MOUSEDAMPER_BUILD_CONFIG_H
+
+/* Version string for display: "0.1.0" */
+#define MOUSEDAMPER_VERSION "@VERSION@"
+
+/* Version string for .rc files: "0.1.0.0" */
+#define MOUSEDAMPER_VERSION_STR "@VERSION@.0"
+
+/* Version numbers for .rc FILEVERSION/PRODUCTVERSION: 0,1,0,0 */
+#define MOUSEDAMPER_VERSION_CSV @VERSION_CSV@
+
+/* Executable paths configured by meson (wide strings for Windows) */
+#define MOUSEDAMPER_DAEMON_PATH L"@DAEMON_PATH@"
+#define MOUSEDAMPER_CONFIG_PATH L"@CONFIG_PATH@"
+
+#endif /* MOUSEDAMPER_BUILD_CONFIG_H */

@@ -2,7 +2,7 @@
 Name=Configure mousedamper
 Comment=Adjust mousedamper movement and click settings
 Exec=@prefs_path@
-Icon=input-mouse
+Icon=mousedamper
 Type=Application
 Categories=GNOME;GTK;Settings;DesktopSettings;
 StartupNotify=false

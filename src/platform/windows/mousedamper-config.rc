@@ -1,0 +1,76 @@
+#include <windows.h>
+#include <commctrl.h>
+#include "config.h"
+#include "mousedamper-config_resource.h"
+
+/* Application icon */
+IDI_MOUSEDAMPER ICON "../../data/mousedamper.ico"
+
+/* Main configuration dialog */
+/* Note: Dialog text is set at runtime for translation support */
+IDD_CONFIG_DIALOG DIALOGEX 0, 0, 340, 340
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION ""
+FONT 9, "Segoe UI"
+BEGIN
+    /* Description text */
+    LTEXT "",
+          IDC_DESC_TEXT, 10, 10, 320, 50, SS_LEFT
+
+    /* Enabled section (replaces Autostart) */
+    GROUPBOX "", IDC_STATUS_GROUP, 10, 70, 320, 40
+    AUTOCHECKBOX "",
+                 IDC_ENABLED_CHECK, 20, 87, 300, 15
+
+    /* Movement section */
+    GROUPBOX "", IDC_MOVEMENT_GROUP, 10, 120, 320, 70
+    LTEXT "", IDC_THRESHOLD_LABEL_STATIC, 20, 138, 100, 10
+    CONTROL "", IDC_THRESHOLD_SLIDER, TRACKBAR_CLASS,
+            TBS_AUTOTICKS | TBS_HORZ | WS_TABSTOP,
+            20, 152, 240, 25
+    LTEXT "", IDC_THRESHOLD_LABEL, 270, 158, 50, 10
+
+    /* Clicks section */
+    GROUPBOX "", IDC_CLICKS_GROUP, 10, 200, 320, 75
+    AUTOCHECKBOX "",
+                 IDC_OVERRIDE_CHECK, 20, 217, 300, 15
+    LTEXT "", IDC_DBLCLICK_LABEL_STATIC, 30, 242, 85, 10
+    EDITTEXT IDC_DBLCLICK_EDIT, 120, 239, 50, 14, ES_NUMBER | WS_DISABLED
+    CONTROL "", IDC_DBLCLICK_SPIN, UPDOWN_CLASS,
+            UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS | WS_DISABLED,
+            170, 239, 11, 14
+    LTEXT "", IDC_MS_LABEL, 182, 242, 20, 10
+
+    /* Apply button */
+    DEFPUSHBUTTON "", IDC_APPLY_BUTTON, 85, 290, 170, 20, WS_DISABLED
+END
+
+/* Version information */
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION     MOUSEDAMPER_VERSION_CSV
+PRODUCTVERSION  MOUSEDAMPER_VERSION_CSV
+FILEFLAGSMASK   0x3fL
+FILEFLAGS       0x0L
+FILEOS          VOS_NT_WINDOWS32
+FILETYPE        VFT_APP
+FILESUBTYPE     VFT2_UNKNOWN
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "CompanyName", "Michael Webster"
+            VALUE "FileDescription", "Mouse Damper Configuration"
+            VALUE "FileVersion", MOUSEDAMPER_VERSION_STR
+            VALUE "InternalName", "mousedamper-config"
+            VALUE "LegalCopyright", "GPL-3.0"
+            VALUE "OriginalFilename", "mousedamper-config.exe"
+            VALUE "ProductName", "Mouse Damper"
+            VALUE "ProductVersion", MOUSEDAMPER_VERSION_STR
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
