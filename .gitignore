@@ -1,0 +1,9 @@
+debian/tmp
+debian/mousedamper
+debian/mousedamper-common
+debian/mousedamper-dbg
+debian/.debhelper
+debian/files
+debian/*.log
+debian/*.substvars
+debian/debhelper-build-stamp
