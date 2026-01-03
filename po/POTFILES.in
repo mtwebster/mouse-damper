@@ -1,0 +1,9 @@
+# List of source files containing translatable strings
+
+# Python files (Linux)
+src/platform/linux/mousedamper-config.py
+src/platform/linux/mousedamper-launch.py
+
+# C files (Windows)
+src/platform/windows/mousedamper-launcher.c
+src/platform/windows/mousedamper-config.c

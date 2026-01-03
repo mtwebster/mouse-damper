@@ -1,0 +1,322 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the mouse-damper package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: mouse-damper 0.1.0\n"
+"Report-Msgid-Bugs-To: miketwebster@gmail.com\n"
+"POT-Creation-Date: 2026-01-03 09:39-0500\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/platform/linux/mousedamper-config.py:64
+msgid "Mousedamper Configuration"
+msgstr ""
+
+#: src/platform/linux/mousedamper-config.py:77
+#: src/platform/linux/mousedamper-launch.py:207
+#: src/platform/linux/mousedamper-launch.py:266
+#: src/platform/windows/mousedamper-launcher.c:259
+#: src/platform/windows/mousedamper-launcher.c:409
+#: src/platform/windows/mousedamper-launcher.c:478
+msgid "Mouse Damper"
+msgstr ""
+
+#: src/platform/linux/mousedamper-config.py:84
+msgid ""
+"Mousedamper helps prevent accidental clicks and drag operations caused by "
+"hand tremors or unsteady mouse movements.\n"
+"\n"
+"When you press a mouse button, the pointer is frozen in place until either "
+"you complete a double-click, the double-click timeout expires, or you move "
+"the mouse beyond the breakout threshold. This prevents the pointer from "
+"drifting between button-press and button-release, ensuring you click exactly "
+"where you intend."
+msgstr ""
+
+#. Set group box titles
+#: src/platform/linux/mousedamper-config.py:94
+#: src/platform/windows/mousedamper-config.c:117
+msgid "Status"
+msgstr ""
+
+#: src/platform/linux/mousedamper-config.py:100
+msgid "Enable mousedamper"
+msgstr ""
+
+#: src/platform/linux/mousedamper-config.py:110
+#: src/platform/windows/mousedamper-config.c:121
+msgid "Movement"
+msgstr ""
+
+#: src/platform/linux/mousedamper-config.py:116
+msgid "Breakout threshold"
+msgstr ""
+
+#: src/platform/linux/mousedamper-config.py:122
+msgid "Lower"
+msgstr ""
+
+#: src/platform/linux/mousedamper-config.py:132
+msgid "Higher"
+msgstr ""
+
+#: src/platform/linux/mousedamper-config.py:135
+msgid ""
+"The distance the pointer must move while frozen before the freeze is removed "
+"and normal movement resumes."
+msgstr ""
+
+#: src/platform/linux/mousedamper-config.py:144
+#: src/platform/windows/mousedamper-config.c:125
+msgid "Clicks"
+msgstr ""
+
+#: src/platform/linux/mousedamper-config.py:151
+#: src/platform/windows/mousedamper-config.c:62
+#, c-format, python-format
+msgid "Override system double-click time (currently %dms)"
+msgstr ""
+
+#: src/platform/linux/mousedamper-config.py:169
+msgid "Double-click time"
+msgstr ""
+
+#: src/platform/linux/mousedamper-config.py:178
+msgid ""
+"The maximum time between clicks to register a double-click, in milliseconds."
+msgstr ""
+
+#: src/platform/linux/mousedamper-config.py:191
+msgid "Save changes"
+msgstr ""
+
+#: src/platform/linux/mousedamper-config.py:192
+msgid "Apply settings and restart the daemon"
+msgstr ""
+
+#: src/platform/linux/mousedamper-launch.py:99
+#: src/platform/windows/mousedamper-launcher.c:511
+msgid "Enable"
+msgstr ""
+
+#: src/platform/linux/mousedamper-launch.py:106
+#: src/platform/windows/mousedamper-launcher.c:521
+msgid "Configure..."
+msgstr ""
+
+#: src/platform/linux/mousedamper-launch.py:112
+msgid "About"
+msgstr ""
+
+#: src/platform/linux/mousedamper-launch.py:116
+#: src/platform/windows/mousedamper-launcher.c:531
+msgid "Quit"
+msgstr ""
+
+#: src/platform/linux/mousedamper-launch.py:162
+#: src/platform/linux/mousedamper-launch.py:211
+#: src/platform/windows/mousedamper-launcher.c:220
+#: src/platform/windows/mousedamper-launcher.c:269
+msgid "Mouse Damper Error"
+msgstr ""
+
+#: src/platform/linux/mousedamper-launch.py:211
+msgid "Daemon crashed too many times. Please check logs."
+msgstr ""
+
+#: src/platform/linux/mousedamper-launch.py:239
+#: src/platform/windows/mousedamper-launcher.c:258
+#: src/platform/windows/mousedamper-launcher.c:291
+#: src/platform/windows/mousedamper-launcher.c:408
+msgid "Mouse Damper - Active"
+msgstr ""
+
+#: src/platform/linux/mousedamper-launch.py:241
+msgid "Mouse Damper - Starting..."
+msgstr ""
+
+#: src/platform/linux/mousedamper-launch.py:243
+#: src/platform/windows/mousedamper-launcher.c:422
+#: src/platform/windows/mousedamper-launcher.c:477
+#: src/platform/windows/mousedamper-launcher.c:639
+msgid "Mouse Damper - Disabled"
+msgstr ""
+
+#: src/platform/linux/mousedamper-launch.py:268
+msgid "Prevents unintended mouse movements during clicks"
+msgstr ""
+
+#. Set copyright and license
+#: src/platform/linux/mousedamper-launch.py:269
+#: src/platform/windows/mousedamper-launcher.c:783
+msgid "Copyright 2020 Michael Webster"
+msgstr ""
+
+#: src/platform/windows/mousedamper-launcher.c:221
+msgid "Daemon crashed multiple times. Please check configuration."
+msgstr ""
+
+#: src/platform/windows/mousedamper-launcher.c:222
+msgid "Mouse Damper - Stopped (Too many crashes)"
+msgstr ""
+
+#. Launch daemon
+#: src/platform/windows/mousedamper-launcher.c:242
+#: src/platform/windows/mousedamper-launcher.c:387
+msgid "Mouse Damper - Restarting..."
+msgstr ""
+
+#: src/platform/windows/mousedamper-launcher.c:260
+msgid "Daemon restarted successfully"
+msgstr ""
+
+#: src/platform/windows/mousedamper-launcher.c:268
+msgid "Mouse Damper - Failed to restart"
+msgstr ""
+
+#: src/platform/windows/mousedamper-launcher.c:270
+msgid "Failed to restart daemon"
+msgstr ""
+
+#: src/platform/windows/mousedamper-launcher.c:410
+msgid "Settings applied - daemon restarted"
+msgstr ""
+
+#: src/platform/windows/mousedamper-launcher.c:417
+#: src/platform/windows/mousedamper-launcher.c:631
+msgid "Mouse Damper - Failed to start"
+msgstr ""
+
+#: src/platform/windows/mousedamper-launcher.c:436
+#: src/platform/windows/mousedamper-launcher.c:456
+#: src/platform/windows/mousedamper-launcher.c:581
+#: src/platform/windows/mousedamper-launcher.c:630
+#: src/platform/windows/mousedamper-launcher.c:856
+#: src/platform/windows/mousedamper-launcher.c:871
+#: src/platform/windows/mousedamper-config.c:89
+#: src/platform/windows/mousedamper-config.c:218
+#: src/platform/windows/mousedamper-config.c:309
+msgid "Error"
+msgstr ""
+
+#: src/platform/windows/mousedamper-launcher.c:437
+#: src/platform/windows/mousedamper-launcher.c:457
+#: src/platform/windows/mousedamper-config.c:88
+#: src/platform/windows/mousedamper-config.c:217
+msgid "Failed to save configuration"
+msgstr ""
+
+#: src/platform/windows/mousedamper-launcher.c:479
+msgid "Daemon stopped"
+msgstr ""
+
+#: src/platform/windows/mousedamper-launcher.c:516
+msgid "Disable"
+msgstr ""
+
+#: src/platform/windows/mousedamper-launcher.c:526
+msgid "About..."
+msgstr ""
+
+#: src/platform/windows/mousedamper-launcher.c:580
+msgid "Failed to create tray icon"
+msgstr ""
+
+#: src/platform/windows/mousedamper-launcher.c:629
+msgid "Failed to launch mousedamper daemon"
+msgstr ""
+
+#. Set dialog title
+#: src/platform/windows/mousedamper-launcher.c:762
+msgid "About Mouse Damper"
+msgstr ""
+
+#: src/platform/windows/mousedamper-launcher.c:768
+#, c-format
+msgid "Mouse Damper v%s"
+msgstr ""
+
+#. Set description paragraphs
+#: src/platform/windows/mousedamper-launcher.c:774
+msgid ""
+"Prevents accidental clicks and drag operations caused by hand tremors or "
+"unsteady mouse movements."
+msgstr ""
+
+#: src/platform/windows/mousedamper-launcher.c:778
+msgid ""
+"When you press a mouse button, the pointer is frozen in place until you "
+"complete a double-click, the double-click timeout expires, or you move the "
+"mouse beyond the configured threshold."
+msgstr ""
+
+#: src/platform/windows/mousedamper-launcher.c:787
+msgid "Licensed under GPL-3.0"
+msgstr ""
+
+#. Set OK button text
+#: src/platform/windows/mousedamper-launcher.c:792
+msgid "OK"
+msgstr ""
+
+#: src/platform/windows/mousedamper-launcher.c:855
+#: src/platform/windows/mousedamper-config.c:308
+msgid "Failed to load configuration"
+msgstr ""
+
+#: src/platform/windows/mousedamper-launcher.c:870
+msgid "Failed to create window"
+msgstr ""
+
+#: src/platform/windows/mousedamper-config.c:51
+#, c-format
+msgid "%d pixels"
+msgstr ""
+
+#. Set dialog title
+#: src/platform/windows/mousedamper-config.c:107
+msgid "Mouse Damper Configuration"
+msgstr ""
+
+#. Set description text
+#: src/platform/windows/mousedamper-config.c:112
+msgid ""
+"Mouse Damper helps prevent accidental clicks and drag operations caused by "
+"hand tremors or unsteady mouse movements.\n"
+"\n"
+"When you press a mouse button, the pointer is frozen in place until either "
+"you complete a double-click, the double-click timeout expires, or you move "
+"the mouse beyond the breakout threshold."
+msgstr ""
+
+#. Set checkbox text
+#: src/platform/windows/mousedamper-config.c:130
+msgid "Enable Mouse Damper"
+msgstr ""
+
+#. Set static label text
+#: src/platform/windows/mousedamper-config.c:135
+msgid "Breakout threshold:"
+msgstr ""
+
+#: src/platform/windows/mousedamper-config.c:139
+msgid "Double-click time:"
+msgstr ""
+
+#: src/platform/windows/mousedamper-config.c:143
+msgid "ms"
+msgstr ""
+
+#. Set apply button text
+#: src/platform/windows/mousedamper-config.c:148
+msgid "Apply Changes and Restart Daemon"
+msgstr ""
