@@ -1,0 +1,7 @@
+usr/bin/mousedamper-config
+usr/bin/mousedamper-launch
+usr/libexec/mousedamper/config.py
+usr/libexec/mousedamper/mousedamper-config.py
+usr/libexec/mousedamper/mousedamper-launch.py
+usr/share/applications/mousedamper-config.desktop
+usr/share/icons/hicolor

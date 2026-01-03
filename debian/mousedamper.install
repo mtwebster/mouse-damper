@@ -1,0 +1,4 @@
+usr/libexec/mousedamper/mousedamper
+etc/xdg/autostart/mousedamper.desktop
+usr/share/glib-2.0/schemas/org.mtw.mousedamper.gschema.xml
+

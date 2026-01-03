@@ -1,0 +1,59 @@
+Source: mousedamper
+Section: gnome
+Priority: optional
+Maintainer: Michael Webster <miketwebster@gmail.com>
+Build-Depends: debhelper-compat (= 13),
+               meson (>= 0.56.0),
+               ninja-build,
+               libglib2.0-dev (>= 2.50),
+               libevdev-dev,
+               pkg-config,
+               python3,
+               gettext
+Standards-Version: 4.6.0
+Homepage: https://github.com/miketwebster/mouse-damper
+Vcs-Git: https://github.com/miketwebster/mouse-damper.git
+Vcs-Browser: https://github.com/miketwebster/mouse-damper
+
+Package: mousedamper
+Architecture: any
+Depends: ${shlibs:Depends},
+         ${misc:Depends},
+         mousedamper-common (= ${source:Version}),
+         libglib2.0-0 (>= 2.50),
+         libevdev2
+Description: Mouse damper to prevent accidental clicks
+ Mouse Damper is a utility that helps prevent accidental clicks caused by
+ hand tremors or unsteady mouse movements by temporarily freezing the mouse
+ pointer during button presses.
+ .
+ This package contains the mousedamper daemon binary.
+
+Package: mousedamper-common
+Architecture: any
+Depends: ${misc:Depends},
+         python3,
+         python3-gi,
+         gir1.2-gtk-3.0,
+         gir1.2-xapp-1.0,
+         gir1.2-glib-2.0,
+         gir1.2-gio-2.0
+Description: Mouse damper to prevent accidental clicks
+ Mouse Damper is a utility that helps prevent accidental clicks caused by
+ hand tremors or unsteady mouse movements by temporarily freezing the mouse
+ pointer during button presses.
+ .
+ This package contains scripts, icons and data files for mousedamper.
+
+Package: mousedamper-dbg
+Section: debug
+Priority: optional
+Architecture: any
+Depends: mousedamper (= ${binary:Version}),
+         ${misc:Depends}
+Description: Mouse damper to prevent accidental clicks (debug symbols)
+ Mouse Damper is a utility that helps prevent accidental clicks caused by
+ hand tremors or unsteady mouse movements by temporarily freezing the mouse
+ pointer during button presses.
+ .
+ This package contains the debug symbols for mousedamper.

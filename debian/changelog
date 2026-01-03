@@ -1,0 +1,7 @@
+mousedamper (0.9.0) unstable; urgency=medium
+
+  * Initial Debian packaging
+  * Cross-platform mouse damper utility
+  * Supports tremor reduction and accidental click prevention
+
+ -- Michael Webster <miketwebster@gmail.com>  Sat, 03 Jan 2026 16:04:15 -0500
