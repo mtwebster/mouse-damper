@@ -841,6 +841,15 @@ WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmd
 {
     TrayAppState state = {0};
     MSG msg;
+    HANDLE singleton_mutex;
+
+    /* Ensure only one instance runs - use a named mutex */
+    singleton_mutex = CreateMutexW(NULL, TRUE, L"Local\\MouseDamperLauncher");
+    if (GetLastError() == ERROR_ALREADY_EXISTS) {
+        /* Another instance is already running */
+        if (singleton_mutex) CloseHandle(singleton_mutex);
+        return 0;
+    }
 
     /* Initialize gettext */
     init_gettext_windows();
