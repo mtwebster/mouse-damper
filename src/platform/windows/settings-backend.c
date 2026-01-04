@@ -31,7 +31,9 @@ config_get_file_path (wchar_t *buffer, size_t buffer_size)
     }
 
     /* Build full path: %APPDATA%\mousedamper\config.ini */
-    snwprintf (buffer, buffer_size, L"%s\\mousedamper\\config.ini", appdata_path);
+    wcsncpy (buffer, appdata_path, buffer_size - 1);
+    buffer[buffer_size - 1] = L'\0';
+    wcsncat (buffer, L"\\mousedamper\\config.ini", buffer_size - wcslen(buffer) - 1);
 
     return true;
 }
@@ -49,7 +51,9 @@ config_ensure_directory (void)
     }
 
     /* Build directory path: %APPDATA%\mousedamper */
-    snwprintf (config_dir, MAX_PATH, L"%s\\mousedamper", appdata_path);
+    wcsncpy (config_dir, appdata_path, MAX_PATH - 1);
+    config_dir[MAX_PATH - 1] = L'\0';
+    wcsncat (config_dir, L"\\mousedamper", MAX_PATH - wcslen(config_dir) - 1);
 
     /* Create directory (ignore error if it already exists) */
     if (!CreateDirectoryW (config_dir, NULL)) {
@@ -118,7 +122,7 @@ config_load (MouseDamperConfig *config)
     {
         wchar_t scale_buf[32];
         wchar_t default_scale_buf[32];
-        snwprintf (default_scale_buf, 32, L"%.2f", DEFAULT_THRESHOLD_SCALE);
+        _snwprintf (default_scale_buf, 32, L"%.2f", DEFAULT_THRESHOLD_SCALE);
 
         GetPrivateProfileStringW (
             L"" CONFIG_SECTION,
@@ -172,35 +176,35 @@ config_save (const MouseDamperConfig *config)
     }
 
     /* Write Enabled */
-    snwprintf (value_buf, 32, L"%d", config->enabled ? 1 : 0);
+    _snwprintf (value_buf, 32, L"%d", config->enabled ? 1 : 0);
     if (!WritePrivateProfileStringW (L"" CONFIG_SECTION, L"" CONFIG_KEY_ENABLED, value_buf, config_path)) {
         fprintf (stderr, "Failed to write Enabled: error %lu\n", GetLastError ());
         return false;
     }
 
     /* Write DeltaThreshold */
-    snwprintf (value_buf, 32, L"%d", config->delta_threshold);
+    _snwprintf (value_buf, 32, L"%d", config->delta_threshold);
     if (!WritePrivateProfileStringW (L"" CONFIG_SECTION, L"" CONFIG_KEY_DELTA, value_buf, config_path)) {
         fprintf (stderr, "Failed to write DeltaThreshold: error %lu\n", GetLastError ());
         return false;
     }
 
     /* Write ThresholdScaleFactor */
-    snwprintf (value_buf, 32, L"%.2f", config->threshold_scale_factor);
+    _snwprintf (value_buf, 32, L"%.2f", config->threshold_scale_factor);
     if (!WritePrivateProfileStringW (L"" CONFIG_SECTION, L"" CONFIG_KEY_THRESHOLD_SCALE, value_buf, config_path)) {
         fprintf (stderr, "Failed to write ThresholdScaleFactor: error %lu\n", GetLastError ());
         return false;
     }
 
     /* Write OverrideDoubleClickTime */
-    snwprintf (value_buf, 32, L"%d", config->override_double_click_time ? 1 : 0);
+    _snwprintf (value_buf, 32, L"%d", config->override_double_click_time ? 1 : 0);
     if (!WritePrivateProfileStringW (L"" CONFIG_SECTION, L"" CONFIG_KEY_OVERRIDE_DBLCLICK, value_buf, config_path)) {
         fprintf (stderr, "Failed to write OverrideDoubleClickTime: error %lu\n", GetLastError ());
         return false;
     }
 
     /* Write DoubleClickTimeOverride */
-    snwprintf (value_buf, 32, L"%d", config->double_click_time_override);
+    _snwprintf (value_buf, 32, L"%d", config->double_click_time_override);
     if (!WritePrivateProfileStringW (L"" CONFIG_SECTION, L"" CONFIG_KEY_DBLCLICK_OVERRIDE, value_buf, config_path)) {
         fprintf (stderr, "Failed to write DoubleClickTimeOverride: error %lu\n", GetLastError ());
         return false;

@@ -12,8 +12,4 @@
 /* Version numbers for .rc FILEVERSION/PRODUCTVERSION: 0,1,0,0 */
 #define MOUSEDAMPER_VERSION_CSV @VERSION_CSV@
 
-/* Executable paths configured by meson (wide strings for Windows) */
-#define MOUSEDAMPER_DAEMON_PATH L"@DAEMON_PATH@"
-#define MOUSEDAMPER_CONFIG_PATH L"@CONFIG_PATH@"
-
 #endif /* MOUSEDAMPER_BUILD_CONFIG_H */

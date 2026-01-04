@@ -8,8 +8,11 @@ math_dep = meson.get_compiler('c').find_library('m', required: false)
 platform_deps = math_dep.found() ? [math_dep] : []
 
 # Windows-specific dependencies
-# Note: MSYS2/MinGW gettext doesn't provide libintl.pc, so use find_library
-libintl_dep = meson.get_compiler('c').find_library('intl', required: true)
+# Try pkg-config first, fall back to find_library
+libintl_dep = dependency('libintl', required: false)
+if not libintl_dep.found()
+  libintl_dep = meson.get_compiler('c').find_library('intl', required: true)
+endif
 
 # Target Windows 7 and above
 win7_args = ['-D_WIN32_WINNT=0x0601', '-DWINVER=0x0601']
@@ -27,10 +30,6 @@ version_parts = meson.project_version().split('.')
 version_csv = ','.join(version_parts + ['0'])
 config_conf.set('VERSION_CSV', version_csv)
 
-# Executable paths
-config_conf.set('DAEMON_PATH', exec_path / 'mousedamper.exe')
-config_conf.set('CONFIG_PATH', exec_path / 'mousedamper-config.exe')
-
 configure_file(
   input : 'config.h.in',
   output: 'config.h',
@@ -43,20 +42,31 @@ windows_config_sources = files('settings-backend.c')
 
 ############ Resource files with icon dependency
 
+# Icon directory (in build tree)
+icon_build_dir = meson.project_build_root() / 'data' / 'icons'
+
 # Launcher resource
 launcher_res = windows_mod.compile_resources(
   'mousedamper-launcher.rc',
   depend_files: files('mousedamper-launcher_resource.h'),
-  depends: icon_ico,
-  include_directories: [include_directories('.'), include_directories('../..')]
+  depends: [icon_ico],
+  include_directories: [
+    include_directories('.'),
+    include_directories('../..')
+  ],
+  args: ['-I' + icon_build_dir]
 )
 
 # Config GUI resource
 config_gui_res = windows_mod.compile_resources(
   'mousedamper-config.rc',
   depend_files: files('mousedamper-config_resource.h'),
-  depends: icon_ico,
-  include_directories: [include_directories('.'), include_directories('../..')]
+  depends: [icon_ico],
+  include_directories: [
+    include_directories('.'),
+    include_directories('../..')
+  ],
+  args: ['-I' + icon_build_dir]
 )
 
 ############ Build Windows executables

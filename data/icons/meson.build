@@ -4,7 +4,11 @@ if host_machine.system() == 'windows'
   ############# Windows: Generate .ico from SVG
 
   rsvg_convert = find_program('rsvg-convert', required: false)
-  imagemagick = find_program('convert', required: false)
+  # Try modern 'magick' command first, fall back to 'convert'
+  imagemagick = find_program('magick', required: false)
+  if not imagemagick.found()
+    imagemagick = find_program('convert', required: false)
+  endif
 
   if rsvg_convert.found() and imagemagick.found()
     # Generate PNG files at different resolutions

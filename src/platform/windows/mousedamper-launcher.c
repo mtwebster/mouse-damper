@@ -106,17 +106,32 @@ kill_existing_processes (void)
 static HANDLE
 launch_daemon_and_get_handle (bool verbose, int dblclick_ms, int threshold_px, double threshold_scale, DWORD *out_pid)
 {
+    wchar_t exe_path[MAX_PATH];
     wchar_t cmd_line[MAX_PATH * 2];
     STARTUPINFOW si;
     PROCESS_INFORMATION pi;
 
+    /* Get path to current executable */
+    if (!GetModuleFileNameW (NULL, exe_path, MAX_PATH)) {
+        return NULL;
+    }
+
+    /* Replace launcher name with daemon name */
+    wchar_t *last_backslash = wcsrchr (exe_path, L'\\');
+    if (last_backslash != NULL) {
+        wcscpy (last_backslash + 1, L"mousedamper.exe");
+    } else {
+        wcscpy (exe_path, L"mousedamper.exe");
+    }
+
     /* Build command line: mousedamper.exe verbose/quiet <dblclick-ms> <threshold-px> <threshold-scale> */
-    snwprintf (cmd_line, MAX_PATH * 2, L"\"%s\" %s %d %d %.2f",
-               MOUSEDAMPER_DAEMON_PATH,
-               verbose ? L"verbose" : L"quiet",
-               dblclick_ms,
-               threshold_px,
-               threshold_scale);
+    _snwprintf (cmd_line, MAX_PATH * 2, L"\"%s\" %s %d %d %.2f",
+                exe_path,
+                verbose ? L"verbose" : L"quiet",
+                dblclick_ms,
+                threshold_px,
+                threshold_scale);
+    cmd_line[MAX_PATH * 2 - 1] = L'\0';
 
     /* Setup startup info */
     ZeroMemory (&si, sizeof (si));
@@ -127,7 +142,7 @@ launch_daemon_and_get_handle (bool verbose, int dblclick_ms, int threshold_px, d
     ZeroMemory (&pi, sizeof (pi));
 
     /* Launch the daemon */
-    if (!CreateProcessW (MOUSEDAMPER_DAEMON_PATH,
+    if (!CreateProcessW (exe_path,
                          cmd_line,
                          NULL,           /* Process handle not inheritable */
                          NULL,           /* Thread handle not inheritable */
@@ -156,8 +171,10 @@ show_balloon_notification (TrayAppState *state, const wchar_t *title, const wcha
     if (!state || !state->hwnd) return;
 
     state->nid.uFlags = NIF_INFO;
-    snwprintf (state->nid.szInfoTitle, 64, L"%s", title);
-    snwprintf (state->nid.szInfo, 256, L"%s", msg);
+    wcsncpy (state->nid.szInfoTitle, title, 63);
+    state->nid.szInfoTitle[63] = L'\0';
+    wcsncpy (state->nid.szInfo, msg, 255);
+    state->nid.szInfo[255] = L'\0';
     state->nid.dwInfoFlags = NIIF_INFO;
 
     Shell_NotifyIconW (NIM_MODIFY, &state->nid);
@@ -171,7 +188,8 @@ update_tray_tooltip (TrayAppState *state, const wchar_t *text)
 {
     if (!state || !state->hwnd) return;
 
-    snwprintf (state->nid.szTip, 128, L"%s", text);
+    wcsncpy (state->nid.szTip, text, 127);
+    state->nid.szTip[127] = L'\0';
     Shell_NotifyIconW (NIM_MODIFY, &state->nid);
 }
 
@@ -289,7 +307,8 @@ add_tray_icon (TrayAppState *state)
     state->nid.hIcon = LoadIcon (GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_MOUSEDAMPER));
 
     wchar_t *active_tip = _W("Mouse Damper - Active");
-    snwprintf (state->nid.szTip, 128, L"%s", active_tip);
+    wcsncpy (state->nid.szTip, active_tip, 127);
+    state->nid.szTip[127] = L'\0';
     free(active_tip);
 
     return Shell_NotifyIconW (NIM_ADD, &state->nid);
@@ -304,12 +323,25 @@ remove_tray_icon (TrayAppState *state)
 static void
 on_configure (TrayAppState *state)
 {
+    wchar_t exe_path[MAX_PATH];
+
+    /* Get path to current executable */
+    if (!GetModuleFileNameW (NULL, exe_path, MAX_PATH)) return;
+
+    /* Replace launcher name with config name */
+    wchar_t *last_backslash = wcsrchr (exe_path, L'\\');
+    if (last_backslash) {
+        wcscpy (last_backslash + 1, L"mousedamper-config.exe");
+    } else {
+        wcscpy (exe_path, L"mousedamper-config.exe");
+    }
+
     /* Launch config GUI (non-blocking) */
     STARTUPINFOW si = {0};
     si.cb = sizeof (si);
     PROCESS_INFORMATION pi = {0};
 
-    if (CreateProcessW (MOUSEDAMPER_CONFIG_PATH, NULL, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+    if (CreateProcessW (exe_path, NULL, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
         CloseHandle (pi.hProcess);
         CloseHandle (pi.hThread);
     }
@@ -504,34 +536,17 @@ show_context_menu (TrayAppState *state)
     HMENU popup = GetSubMenu (hmenu, 0);
 
     /* Set menu item text from translations */
-    MENUITEMINFOW mii = {0};
-    mii.cbSize = sizeof(MENUITEMINFOW);
-    mii.fMask = MIIM_STRING;
-
     wchar_t *enable_txt = _W("Enable");
-    mii.dwTypeData = enable_txt;
-    SetMenuItemInfoW(popup, IDM_ENABLE, FALSE, &mii);
-    free(enable_txt);
-
     wchar_t *disable_txt = _W("Disable");
-    mii.dwTypeData = disable_txt;
-    SetMenuItemInfoW(popup, IDM_DISABLE, FALSE, &mii);
-    free(disable_txt);
-
     wchar_t *config_txt = _W("Configure...");
-    mii.dwTypeData = config_txt;
-    SetMenuItemInfoW(popup, IDM_CONFIGURE, FALSE, &mii);
-    free(config_txt);
-
     wchar_t *about_txt = _W("About...");
-    mii.dwTypeData = about_txt;
-    SetMenuItemInfoW(popup, IDM_ABOUT, FALSE, &mii);
-    free(about_txt);
-
     wchar_t *quit_txt = _W("Quit");
-    mii.dwTypeData = quit_txt;
-    SetMenuItemInfoW(popup, IDM_QUIT, FALSE, &mii);
-    free(quit_txt);
+
+    ModifyMenuW(popup, IDM_ENABLE, MF_BYCOMMAND | MF_STRING, IDM_ENABLE, enable_txt);
+    ModifyMenuW(popup, IDM_DISABLE, MF_BYCOMMAND | MF_STRING, IDM_DISABLE, disable_txt);
+    ModifyMenuW(popup, IDM_CONFIGURE, MF_BYCOMMAND | MF_STRING, IDM_CONFIGURE, config_txt);
+    ModifyMenuW(popup, IDM_ABOUT, MF_BYCOMMAND | MF_STRING, IDM_ABOUT, about_txt);
+    ModifyMenuW(popup, IDM_QUIT, MF_BYCOMMAND | MF_STRING, IDM_QUIT, quit_txt);
 
     /* Update menu items based on enabled state */
     update_menu_for_state(popup, state);
@@ -545,6 +560,13 @@ show_context_menu (TrayAppState *state)
     /* Required cleanup */
     PostMessage (state->hwnd, WM_NULL, 0, 0);
     DestroyMenu (hmenu);
+
+    /* Now safe to free the strings */
+    free(enable_txt);
+    free(disable_txt);
+    free(config_txt);
+    free(about_txt);
+    free(quit_txt);
 }
 
 static void
@@ -766,8 +788,10 @@ about_dialog_proc (HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             /* Set version title */
             wchar_t version_buf[128];
             wchar_t *version_fmt = _W("Mouse Damper v%s");
-            snwprintf(version_buf, 128, version_fmt, MOUSEDAMPER_VERSION_W);
+            wchar_t *version_str = _W(MOUSEDAMPER_VERSION);
+            _snwprintf(version_buf, 128, version_fmt, version_str);
             free(version_fmt);
+            free(version_str);
             SetDlgItemTextW(hwnd, IDC_ABOUT_TITLE, version_buf);
 
             /* Set description paragraphs */
