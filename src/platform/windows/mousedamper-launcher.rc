@@ -3,7 +3,7 @@
 #include "mousedamper-launcher_resource.h"
 
 /* Application icon */
-IDI_MOUSEDAMPER ICON "../../data/mousedamper.ico"
+IDI_MOUSEDAMPER ICON "mousedamper.ico"
 
 /* System tray context menu */
 /* Note: Menu item text is set at runtime for translation support */
