@@ -85,6 +85,8 @@ jobs:
                       mingw-w64-x86_64-pkgconf
                       mingw-w64-x86_64-python
                       mingw-w64-x86_64-gettext
+                      mingw-w64-x86_64-librsvg
+                      mingw-w64-x86_64-imagemagick
                       gettext
 
             - name: Install NSIS
