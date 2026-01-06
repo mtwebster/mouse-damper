@@ -123,7 +123,7 @@ jobs:
               shell: pwsh
               run: |
                   # Use native Windows path for NSIS
-                  & "C:\Program Files (x86)\NSIS\makensis.exe" build\win-packaging\installer.nsi
+                  & "C:\Program Files (x86)\NSIS\makensis.exe" installer.nsi
 
             - name: Rename installer with version
               shell: pwsh

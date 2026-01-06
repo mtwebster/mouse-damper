@@ -15,7 +15,3 @@ locale_dir = join_paths(get_option('prefix'), get_option('localedir'))
 subdir('po')
 subdir('data')
 subdir('src')
-
-if host_machine.system() == 'windows'
-    subdir('win-packaging')
-endif
