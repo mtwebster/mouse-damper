@@ -49,8 +49,8 @@ Section "Mouse Damper" SecMain
 
   ; Install executables
   File "build\src\mousedamper.exe"
-  File "build\src\mousedamper-launch.exe"
-  File "build\src\mousedamper-config.exe"
+  File "build\src\platform\windows\mousedamper-launch.exe"
+  File "build\src\platform\windows\mousedamper-config.exe"
 
   ; Create Start Menu shortcuts
   CreateDirectory "$SMPROGRAMS\Mouse Damper"

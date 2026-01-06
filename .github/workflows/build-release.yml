@@ -118,6 +118,7 @@ jobs:
             - name: Verify build artifacts
               run: |
                   ls -lh build/src/*.exe
+                  ls -lh build/src/platform/windows/*.exe
 
             - name: Build NSIS installer
               shell: pwsh
