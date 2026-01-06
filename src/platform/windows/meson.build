@@ -8,7 +8,8 @@ math_dep = meson.get_compiler('c').find_library('m', required: false)
 platform_deps = math_dep.found() ? [math_dep] : []
 
 # Windows-specific dependencies
-libintl_dep = dependency('libintl', required: true)
+# Note: MSYS2/MinGW gettext doesn't provide libintl.pc, so use find_library
+libintl_dep = meson.get_compiler('c').find_library('intl', required: true)
 
 # Target Windows 7 and above
 win7_args = ['-D_WIN32_WINNT=0x0601', '-DWINVER=0x0601']

@@ -49,15 +49,16 @@ jobs:
               run: |
                   dpkg-buildpackage -us -uc -b
 
-            - name: List generated packages
+            - name: Move packages to current directory
               run: |
-                  ls -lh ../*.deb
+                  mv ../*.deb .
+                  ls -lh *.deb
 
             - name: Upload .deb packages
               uses: actions/upload-artifact@v4
               with:
                   name: ubuntu-packages
-                  path: ../*.deb
+                  path: '*.deb'
                   retention-days: 1
 
     windows-build:
