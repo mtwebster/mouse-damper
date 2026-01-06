@@ -4,6 +4,7 @@
 
 /* Version string for display: "0.1.0" */
 #define MOUSEDAMPER_VERSION "@VERSION@"
+#define MOUSEDAMPER_VERSION_W L"@VERSION@"
 
 /* Version string for .rc files: "0.1.0.0" */
 #define MOUSEDAMPER_VERSION_STR "@VERSION@.0"
