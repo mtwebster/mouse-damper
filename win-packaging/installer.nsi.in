@@ -18,7 +18,7 @@ RequestExecutionLevel admin
 
 ; Pages
 !insertmacro MUI_PAGE_WELCOME
-!insertmacro MUI_PAGE_LICENSE "..\..\COPYING"
+!insertmacro MUI_PAGE_LICENSE "COPYING"
 !insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_INSTFILES
 !insertmacro MUI_PAGE_FINISH
@@ -48,9 +48,9 @@ Section "Mouse Damper" SecMain
   SetOutPath "$INSTDIR"
 
   ; Install executables
-  File "..\src\mousedamper.exe"
-  File "..\src\mousedamper-launch.exe"
-  File "..\src\mousedamper-config.exe"
+  File "build\src\mousedamper.exe"
+  File "build\src\mousedamper-launch.exe"
+  File "build\src\mousedamper-config.exe"
 
   ; Create Start Menu shortcuts
   CreateDirectory "$SMPROGRAMS\Mouse Damper"
