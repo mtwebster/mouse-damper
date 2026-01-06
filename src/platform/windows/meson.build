@@ -8,7 +8,8 @@ math_dep = meson.get_compiler('c').find_library('m', required: false)
 platform_deps = math_dep.found() ? [math_dep] : []
 
 # Windows-specific dependencies
-libintl_dep = dependency('libintl', required: true)
+# Note: MSYS2/MinGW gettext doesn't provide libintl.pc, so use find_library
+libintl_dep = meson.get_compiler('c').find_library('intl', required: true)
 
 # Target Windows 7 and above
 win7_args = ['-D_WIN32_WINNT=0x0601', '-DWINVER=0x0601']
@@ -43,26 +44,18 @@ windows_config_sources = files('settings-backend.c')
 ############ Resource files with icon dependency
 
 # Launcher resource
-launcher_res_deps = [
-  files('mousedamper-launcher_resource.h'),
-  icon_ico
-]
-
 launcher_res = windows_mod.compile_resources(
   'mousedamper-launcher.rc',
-  depend_files: launcher_res_deps,
+  depend_files: files('mousedamper-launcher_resource.h'),
+  depends: icon_ico,
   include_directories: [include_directories('.'), include_directories('../..')]
 )
 
 # Config GUI resource
-config_res_deps = [
-  files('mousedamper-config_resource.h'),
-  icon_ico
-]
-
 config_gui_res = windows_mod.compile_resources(
   'mousedamper-config.rc',
-  depend_files: config_res_deps,
+  depend_files: files('mousedamper-config_resource.h'),
+  depends: icon_ico,
   include_directories: [include_directories('.'), include_directories('../..')]
 )
 

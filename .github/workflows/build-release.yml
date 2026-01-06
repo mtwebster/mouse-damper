@@ -1,0 +1,293 @@
+name: Build and Release
+
+on:
+    workflow_dispatch:
+        inputs:
+            version_override:
+                description: 'Version to use (leave empty to use version from meson.build)'
+                required: false
+                type: string
+
+jobs:
+    ubuntu-build:
+        name: Build Ubuntu .deb packages
+        runs-on: ubuntu-22.04
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Install dependencies
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install -y \
+                      debhelper-compat \
+                      meson \
+                      ninja-build \
+                      libglib2.0-dev \
+                      libevdev-dev \
+                      pkg-config \
+                      python3 \
+                      gettext \
+                      devscripts \
+                      build-essential
+
+            - name: Extract version
+              id: version
+              env:
+                  VERSION_OVERRIDE: ${{ inputs.version_override }}
+              run: |
+                  if [ -n "$VERSION_OVERRIDE" ]; then
+                      VERSION="$VERSION_OVERRIDE"
+                  else
+                      VERSION=$(grep "version :" meson.build | sed "s/.*version : '\(.*\)'.*/\1/")
+                  fi
+                  echo "version=$VERSION" >> $GITHUB_OUTPUT
+                  echo "Building version: $VERSION"
+
+            - name: Build Debian packages
+              run: |
+                  dpkg-buildpackage -us -uc -b
+
+            - name: Move packages to current directory
+              run: |
+                  mv ../*.deb .
+                  ls -lh *.deb
+
+            - name: Upload .deb packages
+              uses: actions/upload-artifact@v4
+              with:
+                  name: ubuntu-packages
+                  path: '*.deb'
+                  retention-days: 1
+
+    fedora-build:
+        name: Build Fedora RPM packages
+        runs-on: ubuntu-latest
+        container: fedora:latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Install dependencies
+              run: |
+                  dnf install -y \
+                      meson \
+                      ninja-build \
+                      gcc \
+                      glib2-devel \
+                      libevdev-devel \
+                      pkgconfig \
+                      python3 \
+                      gettext \
+                      rpm-build \
+                      rpmdevtools
+
+            - name: Extract version
+              id: version
+              env:
+                  VERSION_OVERRIDE: ${{ inputs.version_override }}
+              run: |
+                  if [ -n "$VERSION_OVERRIDE" ]; then
+                      VERSION="$VERSION_OVERRIDE"
+                  else
+                      VERSION=$(grep "version :" meson.build | sed "s/.*version : '\(.*\)'.*/\1/")
+                  fi
+                  echo "version=$VERSION" >> $GITHUB_OUTPUT
+                  echo "Building version: $VERSION"
+
+            - name: Create RPM build structure
+              run: |
+                  mkdir -p ~/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
+                  tar --exclude='.git' --exclude='build*' --transform="s,^\.,mousedamper-${{ steps.version.outputs.version }}," -czf ~/rpmbuild/SOURCES/mousedamper-${{ steps.version.outputs.version }}.tar.gz .
+                  cp mousedamper.spec ~/rpmbuild/SPECS/
+
+            - name: Build RPM packages
+              run: |
+                  rpmbuild -ba ~/rpmbuild/SPECS/mousedamper.spec
+
+            - name: Move packages to workspace
+              run: |
+                  mv ~/rpmbuild/RPMS/*/*.rpm .
+                  ls -lh *.rpm
+
+            - name: Upload RPM packages
+              uses: actions/upload-artifact@v4
+              with:
+                  name: fedora-packages
+                  path: '*.rpm'
+                  retention-days: 1
+
+    windows-build:
+        name: Build Windows NSIS installer
+        runs-on: windows-latest
+
+        defaults:
+            run:
+                shell: msys2 {0}
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Setup MSYS2
+              uses: msys2/setup-msys2@v2
+              with:
+                  msystem: MINGW64
+                  update: true
+                  install: >-
+                      mingw-w64-x86_64-gcc
+                      mingw-w64-x86_64-meson
+                      mingw-w64-x86_64-ninja
+                      mingw-w64-x86_64-pkgconf
+                      mingw-w64-x86_64-python
+                      mingw-w64-x86_64-gettext
+                      mingw-w64-x86_64-librsvg
+                      mingw-w64-x86_64-imagemagick
+                      gettext
+
+            - name: Install NSIS
+              shell: pwsh
+              run: |
+                  choco install nsis -y
+
+            - name: Extract version
+              id: version
+              env:
+                  VERSION_OVERRIDE: ${{ inputs.version_override }}
+              run: |
+                  if [ -n "$VERSION_OVERRIDE" ]; then
+                      VERSION="$VERSION_OVERRIDE"
+                  else
+                      VERSION=$(grep "version :" meson.build | sed "s/.*version : '\(.*\)'.*/\1/")
+                  fi
+                  echo "version=$VERSION" >> $GITHUB_OUTPUT
+                  echo "Building version: $VERSION"
+
+            - name: Set up Meson build
+              run: |
+                  meson setup build
+
+            - name: Build Windows executables
+              run: |
+                  ninja -C build
+
+            - name: Verify build artifacts
+              run: |
+                  ls -lh build/src/*.exe
+                  ls -lh build/src/platform/windows/*.exe
+
+            - name: Build NSIS installer
+              shell: pwsh
+              run: |
+                  # Use native Windows path for NSIS
+                  & "C:\Program Files (x86)\NSIS\makensis.exe" installer.nsi
+
+            - name: Rename installer with version
+              shell: pwsh
+              env:
+                  VERSION: ${{ steps.version.outputs.version }}
+              run: |
+                  Move-Item mousedamper-setup.exe "mousedamper-setup-$env:VERSION.exe"
+
+            - name: Upload installer
+              uses: actions/upload-artifact@v4
+              with:
+                  name: windows-installer
+                  path: mousedamper-setup-*.exe
+                  retention-days: 1
+
+    create-release:
+        name: Create GitHub Release
+        needs: [ubuntu-build, fedora-build, windows-build]
+        runs-on: ubuntu-22.04
+        permissions:
+            contents: write
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Extract version
+              id: version
+              env:
+                  VERSION_OVERRIDE: ${{ inputs.version_override }}
+              run: |
+                  if [ -n "$VERSION_OVERRIDE" ]; then
+                      VERSION="$VERSION_OVERRIDE"
+                  else
+                      VERSION=$(grep "version :" meson.build | sed "s/.*version : '\(.*\)'.*/\1/")
+                  fi
+                  echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+            - name: Download Ubuntu packages
+              uses: actions/download-artifact@v4
+              with:
+                  name: ubuntu-packages
+                  path: ./release-artifacts
+
+            - name: Download Fedora packages
+              uses: actions/download-artifact@v4
+              with:
+                  name: fedora-packages
+                  path: ./release-artifacts
+
+            - name: Download Windows installer
+              uses: actions/download-artifact@v4
+              with:
+                  name: windows-installer
+                  path: ./release-artifacts
+
+            - name: List release artifacts
+              run: |
+                  ls -lh ./release-artifacts/
+
+            - name: Create Release
+              uses: softprops/action-gh-release@v1
+              with:
+                  tag_name: v${{ steps.version.outputs.version }}
+                  name: Mouse Damper v${{ steps.version.outputs.version }}
+                  draft: false
+                  prerelease: false
+                  files: ./release-artifacts/*
+                  body: |
+                      # Mouse Damper v${{ steps.version.outputs.version }}
+
+                      ## Downloads
+
+                      ### Windows
+                      - `mousedamper-setup-${{ steps.version.outputs.version }}.exe` - NSIS installer for Windows 7+
+
+                      ### Ubuntu/Debian
+                      - `mousedamper_${{ steps.version.outputs.version }}_amd64.deb` - Main daemon package
+                      - `mousedamper-common_${{ steps.version.outputs.version }}_amd64.deb` - Common files (required)
+                      - `mousedamper-dbg_${{ steps.version.outputs.version }}_amd64.deb` - Debug symbols (optional)
+
+                      ### Fedora/RHEL
+                      - `mousedamper-${{ steps.version.outputs.version }}-1.fc*.x86_64.rpm` - Main daemon package
+                      - `mousedamper-common-${{ steps.version.outputs.version }}-1.fc*.noarch.rpm` - Common files (required)
+
+                      ## Installation
+
+                      ### Windows
+                      1. Download `mousedamper-setup-${{ steps.version.outputs.version }}.exe`
+                      2. Run the installer
+                      3. Follow the installation wizard
+
+                      ### Ubuntu/Debian
+                      ```bash
+                      sudo dpkg -i mousedamper_${{ steps.version.outputs.version }}_amd64.deb \
+                                   mousedamper-common_${{ steps.version.outputs.version }}_amd64.deb
+                      sudo apt-get install -f  # Install dependencies if needed
+                      ```
+
+                      ### Fedora/RHEL
+                      ```bash
+                      sudo dnf install mousedamper-${{ steps.version.outputs.version }}-1.fc*.x86_64.rpm \
+                                       mousedamper-common-${{ steps.version.outputs.version }}-1.fc*.noarch.rpm
+                      ```
+
+                      Built with GitHub Actions
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

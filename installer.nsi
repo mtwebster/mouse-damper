@@ -32,11 +32,11 @@ RequestExecutionLevel admin
 !insertmacro MUI_LANGUAGE "English"
 
 ; Version information
-VIProductVersion "0.1.0.0"
+VIProductVersion "0.9.0.0"
 VIAddVersionKey "ProductName" "Mouse Damper"
 VIAddVersionKey "FileDescription" "Mouse Damper Installer"
-VIAddVersionKey "FileVersion" "0.1.0.0"
-VIAddVersionKey "ProductVersion" "0.1.0.0"
+VIAddVersionKey "FileVersion" "0.9.0.0"
+VIAddVersionKey "ProductVersion" "0.9.0.0"
 VIAddVersionKey "LegalCopyright" "GPL-3.0"
 VIAddVersionKey "CompanyName" "Michael Webster"
 
@@ -49,8 +49,8 @@ Section "Mouse Damper" SecMain
 
   ; Install executables
   File "build\src\mousedamper.exe"
-  File "build\src\mousedamper-launch.exe"
-  File "build\src\mousedamper-config.exe"
+  File "build\src\platform\windows\mousedamper-launch.exe"
+  File "build\src\platform\windows\mousedamper-config.exe"
 
   ; Create Start Menu shortcuts
   CreateDirectory "$SMPROGRAMS\Mouse Damper"
@@ -72,7 +72,7 @@ Section "Mouse Damper" SecMain
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\MouseDamper" \
               "Publisher" "Michael Webster"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\MouseDamper" \
-              "DisplayVersion" "0.1.0"
+              "DisplayVersion" "0.9.0"
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\MouseDamper" \
                 "NoModify" 1
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\MouseDamper" \

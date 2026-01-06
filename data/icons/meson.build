@@ -49,7 +49,7 @@ else
   )
 
   # Regular icon for application windows
-  install_data(['mousedamper.svg', 'mousedamper-app.svg'],
+  install_data('mousedamper.svg',
     install_dir: join_paths(get_option('datadir'), 'icons', 'hicolor', 'scalable', 'apps')
   )
 

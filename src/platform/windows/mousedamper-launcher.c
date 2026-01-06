@@ -766,7 +766,7 @@ about_dialog_proc (HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             /* Set version title */
             wchar_t version_buf[128];
             wchar_t *version_fmt = _W("Mouse Damper v%s");
-            snwprintf(version_buf, 128, version_fmt, L MOUSEDAMPER_VERSION);
+            snwprintf(version_buf, 128, version_fmt, MOUSEDAMPER_VERSION_W);
             free(version_fmt);
             SetDlgItemTextW(hwnd, IDC_ABOUT_TITLE, version_buf);
 
