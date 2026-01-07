@@ -1,6 +1,6 @@
 [Desktop Entry]
 Type=Application
 Name=mousedamper
-Comment=Start mousedamper. This may do nothing if mousedamper has been disabled via gsettings.
+Comment=Start mousedamper
 Exec=@exec@
 NoDisplay=true

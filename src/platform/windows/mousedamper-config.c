@@ -104,7 +104,7 @@ init_controls (HWND hwnd)
     InitCommonControlsEx (&icc);
 
     /* Set dialog title */
-    wchar_t *title = _W("Mouse Damper Configuration");
+    wchar_t *title = _W("Mousedamper Configuration");
     SetWindowTextW(hwnd, title);
     free(title);
 
@@ -127,7 +127,7 @@ init_controls (HWND hwnd)
     free(clicks_group);
 
     /* Set checkbox text */
-    wchar_t *enabled_txt = _W("Enable Mouse Damper");
+    wchar_t *enabled_txt = _W("Enable mousedamper");
     SetDlgItemTextW(hwnd, IDC_ENABLED_CHECK, enabled_txt);
     free(enabled_txt);
 
@@ -145,7 +145,7 @@ init_controls (HWND hwnd)
     free(ms_label);
 
     /* Set apply button text */
-    wchar_t *apply_txt = _W("Apply Changes and Restart Daemon");
+    wchar_t *apply_txt = _W("Apply settings and restart the daemon");
     SetDlgItemTextW(hwnd, IDC_APPLY_BUTTON, apply_txt);
     free(apply_txt);
 

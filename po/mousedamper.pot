@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: mouse-damper 0.1.0\n"
+"Project-Id-Version: mouse-damper 0.9.0\n"
 "Report-Msgid-Bugs-To: miketwebster@gmail.com\n"
-"POT-Creation-Date: 2026-01-03 09:39-0500\n"
+"POT-Creation-Date: 2026-01-06 19:11-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,7 +17,9 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+#. Set dialog title
 #: src/platform/linux/mousedamper-config.py:64
+#: src/platform/windows/mousedamper-config.c:107
 msgid "Mousedamper Configuration"
 msgstr ""
 
@@ -48,7 +50,9 @@ msgstr ""
 msgid "Status"
 msgstr ""
 
+#. Set checkbox text
 #: src/platform/linux/mousedamper-config.py:100
+#: src/platform/windows/mousedamper-config.c:130
 msgid "Enable mousedamper"
 msgstr ""
 
@@ -99,7 +103,9 @@ msgstr ""
 msgid "Save changes"
 msgstr ""
 
+#. Set apply button text
 #: src/platform/linux/mousedamper-config.py:192
+#: src/platform/windows/mousedamper-config.c:148
 msgid "Apply settings and restart the daemon"
 msgstr ""
 
@@ -114,7 +120,8 @@ msgid "Configure..."
 msgstr ""
 
 #: src/platform/linux/mousedamper-launch.py:112
-msgid "About"
+#: src/platform/windows/mousedamper-launcher.c:526
+msgid "About..."
 msgstr ""
 
 #: src/platform/linux/mousedamper-launch.py:116
@@ -204,7 +211,7 @@ msgstr ""
 #: src/platform/windows/mousedamper-launcher.c:871
 #: src/platform/windows/mousedamper-config.c:89
 #: src/platform/windows/mousedamper-config.c:218
-#: src/platform/windows/mousedamper-config.c:309
+#: src/platform/windows/mousedamper-config.c:319
 msgid "Error"
 msgstr ""
 
@@ -221,10 +228,6 @@ msgstr ""
 
 #: src/platform/windows/mousedamper-launcher.c:516
 msgid "Disable"
-msgstr ""
-
-#: src/platform/windows/mousedamper-launcher.c:526
-msgid "About..."
 msgstr ""
 
 #: src/platform/windows/mousedamper-launcher.c:580
@@ -269,7 +272,7 @@ msgid "OK"
 msgstr ""
 
 #: src/platform/windows/mousedamper-launcher.c:855
-#: src/platform/windows/mousedamper-config.c:308
+#: src/platform/windows/mousedamper-config.c:318
 msgid "Failed to load configuration"
 msgstr ""
 
@@ -282,11 +285,6 @@ msgstr ""
 msgid "%d pixels"
 msgstr ""
 
-#. Set dialog title
-#: src/platform/windows/mousedamper-config.c:107
-msgid "Mouse Damper Configuration"
-msgstr ""
-
 #. Set description text
 #: src/platform/windows/mousedamper-config.c:112
 msgid ""
@@ -296,11 +294,6 @@ msgid ""
 "When you press a mouse button, the pointer is frozen in place until either "
 "you complete a double-click, the double-click timeout expires, or you move "
 "the mouse beyond the breakout threshold."
-msgstr ""
-
-#. Set checkbox text
-#: src/platform/windows/mousedamper-config.c:130
-msgid "Enable Mouse Damper"
 msgstr ""
 
 #. Set static label text
@@ -316,7 +309,10 @@ msgstr ""
 msgid "ms"
 msgstr ""
 
-#. Set apply button text
-#: src/platform/windows/mousedamper-config.c:148
-msgid "Apply Changes and Restart Daemon"
+#: data/platform/linux/mousedamper-config.desktop.in:3
+msgid "Configure mousedamper"
+msgstr ""
+
+#: data/platform/linux/mousedamper-config.desktop.in:4
+msgid "Adjust mousedamper settings"
 msgstr ""

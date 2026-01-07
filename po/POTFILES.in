@@ -7,3 +7,6 @@ src/platform/linux/mousedamper-launch.py
 # C files (Windows)
 src/platform/windows/mousedamper-launcher.c
 src/platform/windows/mousedamper-config.c
+
+# Desktop files
+data/platform/linux/mousedamper-config.desktop.in

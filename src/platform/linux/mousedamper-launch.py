@@ -109,7 +109,7 @@ class MouseDamperManager(Gtk.Application):
 
         menu.append(Gtk.SeparatorMenuItem())
 
-        about_item = Gtk.MenuItem.new_with_label(_("About"))
+        about_item = Gtk.MenuItem.new_with_label(_("About..."))
         about_item.connect("activate", self.on_about)
         menu.append(about_item)
 

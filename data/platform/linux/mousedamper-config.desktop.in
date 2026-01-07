@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=Configure mousedamper
-Comment=Adjust mousedamper movement and click settings
+Comment=Adjust mousedamper settings
 Exec=@prefs_path@
 Icon=mousedamper
 Type=Application
