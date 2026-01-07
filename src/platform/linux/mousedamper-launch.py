@@ -18,7 +18,6 @@
 import sys
 import os
 import subprocess
-import time
 import locale
 import gettext
 
@@ -63,7 +62,7 @@ class MouseDamperManager(Gtk.Application):
         # Process management
         self.daemon_process = None
         self.restart_count = 0
-        self.restart_window_start = 0
+        self.restart_window_start = GLib.get_monotonic_time()
         self.restart_timeout_id = 0
 
         # XAppStatusIcon
@@ -142,21 +141,21 @@ class MouseDamperManager(Gtk.Application):
             str(threshold_scale)
         ]
 
-        # Launch as subprocess
+        # Launch as subprocess using Gio.Subprocess for async monitoring
         try:
-            self.daemon_process = subprocess.Popen(
-                cmd,
-                stdout=subprocess.DEVNULL if not self.verbose else None,
-                stderr=subprocess.DEVNULL if not self.verbose else None
-            )
+            flags = Gio.SubprocessFlags.NONE
+            if not self.verbose:
+                flags = Gio.SubprocessFlags.STDOUT_SILENCE | Gio.SubprocessFlags.STDERR_SILENCE
 
-            # Monitor for exit
-            GLib.timeout_add(1000, self.check_daemon_alive)
+            self.daemon_process = Gio.Subprocess.new(cmd, flags)
+
+            # Monitor for exit asynchronously
+            self.daemon_process.wait_async(None, self.on_daemon_exited)
 
             self.update_tooltip()
 
             if self.verbose:
-                print(f"Started mousedamper daemon: PID {self.daemon_process.pid}")
+                print(f"Started mousedamper daemon: PID {self.daemon_process.get_identifier()}")
         except Exception as e:
             print(f"Failed to start mousedamper: {e}")
             self.send_notification(_("Mouse Damper Error"), f"Failed to start: {e}")
@@ -165,8 +164,7 @@ class MouseDamperManager(Gtk.Application):
     def stop_daemon(self):
         if self.daemon_process:
             try:
-                self.daemon_process.terminate()
-                self.daemon_process.wait(timeout=2)
+                self.daemon_process.force_exit()
                 if self.verbose:
                     print("Stopped mousedamper daemon")
             except:
@@ -175,28 +173,29 @@ class MouseDamperManager(Gtk.Application):
 
         self.update_tooltip()
 
-    def check_daemon_alive(self):
-        if self.daemon_process and self.daemon_process.poll() is not None:
-            # Daemon exited
-            exit_code = self.daemon_process.returncode
-            self.daemon_process = None
+    def on_daemon_exited(self, process, result):
+        try:
+            process.wait_finish(result)
+            exit_code = process.get_exit_status()
+        except:
+            exit_code = -1
 
-            if self.verbose:
-                print(f"Mousedamper daemon exited with code {exit_code}")
+        self.daemon_process = None
 
-            if self.settings.get_boolean(KEY_ENABLED):
-                # Auto-restart with throttling
-                self.handle_daemon_crash()
+        if self.verbose:
+            print(f"Mousedamper daemon exited with code {exit_code}")
 
-            return GLib.SOURCE_REMOVE
-
-        return GLib.SOURCE_CONTINUE
+        if self.settings.get_boolean(KEY_ENABLED):
+            # Auto-restart with throttling
+            self.handle_daemon_crash()
+        else:
+            self.update_tooltip()
 
     def handle_daemon_crash(self):
-        current_time = time.time()
+        current_time = GLib.get_monotonic_time()
 
-        # Reset counter if outside 30-second window
-        if current_time - self.restart_window_start > 30:
+        # Reset counter if outside 30-second window (monotonic time is in microseconds)
+        if (current_time - self.restart_window_start) > (30 * 1000000):
             self.restart_count = 0
             self.restart_window_start = current_time
 
@@ -235,7 +234,7 @@ class MouseDamperManager(Gtk.Application):
         return GLib.SOURCE_REMOVE
 
     def update_tooltip(self):
-        if self.daemon_process and self.daemon_process.poll() is None:
+        if self.daemon_process:
             tooltip = _("Mouse Damper - Active")
         elif self.settings.get_boolean(KEY_ENABLED):
             tooltip = _("Mouse Damper - Starting...")
