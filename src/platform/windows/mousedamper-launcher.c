@@ -124,6 +124,18 @@ launch_daemon_and_get_handle (bool verbose, int dblclick_ms, int threshold_px, d
         wcscpy (exe_path, L"mousedamper.exe");
     }
 
+    /* If daemon not found in same directory, try parent directories (for development builds) */
+    if (GetFileAttributesW (exe_path) == INVALID_FILE_ATTRIBUTES) {
+        if (last_backslash != NULL) {
+            /* Try ../../mousedamper.exe (for build/src/platform/windows/ -> build/src/) */
+            wcscpy (last_backslash + 1, L"..\\..\\mousedamper.exe");
+            if (GetFileAttributesW (exe_path) == INVALID_FILE_ATTRIBUTES) {
+                /* Not found, revert to simple name and let it fail */
+                wcscpy (exe_path, L"mousedamper.exe");
+            }
+        }
+    }
+
     /* Build command line: mousedamper.exe verbose/quiet <dblclick-ms> <threshold-px> <threshold-scale> */
     _snwprintf (cmd_line, MAX_PATH * 2, L"\"%s\" %s %d %d %.2f",
                 exe_path,
