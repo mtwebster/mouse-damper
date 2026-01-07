@@ -178,11 +178,33 @@ jobs:
                   ls -lh build/src/*.exe
                   ls -lh build/src/platform/windows/*.exe
 
+            - name: Pre-installer verification
+              run: |
+                  echo "Current directory: $(pwd)"
+                  echo "Checking required files for NSIS installer:"
+                  test -f build/src/mousedamper.exe && echo "✓ build/src/mousedamper.exe" || echo "✗ build/src/mousedamper.exe MISSING"
+                  test -f build/src/platform/windows/mousedamper-launch.exe && echo "✓ build/src/platform/windows/mousedamper-launch.exe" || echo "✗ build/src/platform/windows/mousedamper-launch.exe MISSING"
+                  test -f build/src/platform/windows/mousedamper-config.exe && echo "✓ build/src/platform/windows/mousedamper-config.exe" || echo "✗ build/src/platform/windows/mousedamper-config.exe MISSING"
+                  test -f installer.nsi && echo "✓ installer.nsi" || echo "✗ installer.nsi MISSING"
+
+            - name: Prepare files for NSIS
+              shell: pwsh
+              run: |
+                  # Copy files to paths that NSIS can reliably find (PowerShell uses Windows paths)
+                  # This works around MSYS2/Windows path translation issues
+                  New-Item -ItemType Directory -Force -Path "build\src\platform\windows" | Out-Null
+                  Copy-Item "build\src\mousedamper.exe" -Destination "build\src\mousedamper.exe" -Force
+                  Copy-Item "build\src\platform\windows\mousedamper-launch.exe" -Destination "build\src\platform\windows\mousedamper-launch.exe" -Force
+                  Copy-Item "build\src\platform\windows\mousedamper-config.exe" -Destination "build\src\platform\windows\mousedamper-config.exe" -Force
+                  Write-Host "Files prepared for NSIS"
+                  Get-ChildItem -Recurse build\src\*.exe | Select-Object FullName
+
             - name: Build NSIS installer
               shell: pwsh
               run: |
-                  # Use native Windows path for NSIS
-                  & "C:\Program Files (x86)\NSIS\makensis.exe" installer.nsi
+                  # Run NSIS from PowerShell to ensure Windows path compatibility
+                  # -V4 enables verbose output to help debug any file issues
+                  & "C:\Program Files (x86)\NSIS\makensis.exe" -V4 installer.nsi
 
             - name: Rename installer with version
               shell: pwsh
