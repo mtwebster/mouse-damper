@@ -187,16 +187,14 @@ jobs:
                   test -f build/src/platform/windows/mousedamper-config.exe && echo "✓ build/src/platform/windows/mousedamper-config.exe" || echo "✗ build/src/platform/windows/mousedamper-config.exe MISSING"
                   test -f installer.nsi && echo "✓ installer.nsi" || echo "✗ installer.nsi MISSING"
 
-            - name: Prepare files for NSIS
+            - name: Verify files exist for NSIS
               shell: pwsh
               run: |
-                  # Copy files to paths that NSIS can reliably find (PowerShell uses Windows paths)
-                  # This works around MSYS2/Windows path translation issues
-                  New-Item -ItemType Directory -Force -Path "build\src\platform\windows" | Out-Null
-                  Copy-Item "build\src\mousedamper.exe" -Destination "build\src\mousedamper.exe" -Force
-                  Copy-Item "build\src\platform\windows\mousedamper-launch.exe" -Destination "build\src\platform\windows\mousedamper-launch.exe" -Force
-                  Copy-Item "build\src\platform\windows\mousedamper-config.exe" -Destination "build\src\platform\windows\mousedamper-config.exe" -Force
-                  Write-Host "Files prepared for NSIS"
+                  # Verify files exist using PowerShell (ensures Windows path resolution)
+                  Write-Host "Verifying files for NSIS installer:"
+                  if (Test-Path "build\src\mousedamper.exe") { Write-Host "✓ build\src\mousedamper.exe" } else { Write-Host "✗ build\src\mousedamper.exe MISSING"; exit 1 }
+                  if (Test-Path "build\src\platform\windows\mousedamper-launch.exe") { Write-Host "✓ build\src\platform\windows\mousedamper-launch.exe" } else { Write-Host "✗ build\src\platform\windows\mousedamper-launch.exe MISSING"; exit 1 }
+                  if (Test-Path "build\src\platform\windows\mousedamper-config.exe") { Write-Host "✓ build\src\platform\windows\mousedamper-config.exe" } else { Write-Host "✗ build\src\platform\windows\mousedamper-config.exe MISSING"; exit 1 }
                   Get-ChildItem -Recurse build\src\*.exe | Select-Object FullName
 
             - name: Build NSIS installer
