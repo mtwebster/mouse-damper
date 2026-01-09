@@ -44,6 +44,17 @@ VIAddVersionKey "CompanyName" "Michael Webster"
 Section "Mouse Damper" SecMain
   SectionIn RO  ; Required section
 
+  ; Stop any running mousedamper processes before installing
+  DetailPrint "Stopping any running Mouse Damper processes..."
+  nsExec::Exec "taskkill /F /IM mousedamper.exe"
+  Pop $0
+  nsExec::Exec "taskkill /F /IM mousedamper-launch.exe"
+  Pop $0
+  nsExec::Exec "taskkill /F /IM mousedamper-config.exe"
+  Pop $0
+  ; Ignore errors if processes not running
+  Sleep 500
+
   ; Set output path
   SetOutPath "$INSTDIR"
 
