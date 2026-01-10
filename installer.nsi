@@ -45,10 +45,11 @@ Section "Mouse Damper" SecMain
   SectionIn RO  ; Required section
 
   ; Stop any running mousedamper processes before installing
+  ; Kill launcher FIRST so it doesn't respawn mousedamper.exe
   DetailPrint "Stopping any running Mouse Damper processes..."
-  nsExec::Exec "taskkill /F /IM mousedamper.exe"
-  Pop $0
   nsExec::Exec "taskkill /F /IM mousedamper-launch.exe"
+  Pop $0
+  nsExec::Exec "taskkill /F /IM mousedamper.exe"
   Pop $0
   nsExec::Exec "taskkill /F /IM mousedamper-config.exe"
   Pop $0
@@ -104,10 +105,15 @@ SectionEnd
 ; Uninstaller section
 Section "Uninstall"
   ; Stop any running mousedamper processes
-  DetailPrint "Stopping Mouse Damper daemon..."
+  ; Kill launcher FIRST so it doesn't respawn mousedamper.exe
+  DetailPrint "Stopping Mouse Damper processes..."
+  nsExec::Exec "taskkill /F /IM mousedamper-launch.exe"
+  Pop $0
   nsExec::Exec "taskkill /F /IM mousedamper.exe"
   Pop $0
-  ; Ignore error if process not running
+  nsExec::Exec "taskkill /F /IM mousedamper-config.exe"
+  Pop $0
+  ; Ignore errors if processes not running
 
   ; Remove autostart registry entry
   DetailPrint "Removing autostart entry..."
