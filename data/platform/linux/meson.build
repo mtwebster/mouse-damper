@@ -20,7 +20,7 @@ desktop_file = configure_file(
   output: 'mousedamper.desktop',
   configuration: conf,
   install: true,
-  install_dir: join_paths(sys_data_dir, 'applications')
+  install_dir: join_paths(get_option('sysconfdir'), 'xdg', 'autostart')
 )
 
 # Application menu entry for configuration

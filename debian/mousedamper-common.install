@@ -2,5 +2,6 @@ usr/bin
 usr/libexec/mousedamper/config.py
 usr/libexec/mousedamper/mousedamper-config.py
 usr/libexec/mousedamper/mousedamper-launch.py
-usr/share/applications
+etc/xdg/autostart/mousedamper.desktop
+usr/share/applications/mousedamper-config.desktop
 usr/share/icons/hicolor
