@@ -1,5 +1,5 @@
 Name:           mousedamper
-Version:        0.9.0
+Version:        0.9.1
 Release:        1%{?dist}
 Summary:        Mouse damper to prevent accidental clicks
 
@@ -72,5 +72,8 @@ chmod 4755 %{buildroot}%{_libexecdir}/mousedamper/mousedamper
 /usr/bin/gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 
 %changelog
+* Sat Feb 15 2026 Michael Webster <miketwebster@gmail.com> - 0.9.1-1
+- Bundle required MinGW runtime DLLs in Windows installer (fixes #2)
+
 * Tue Jan 06 2026 Michael Webster <miketwebster@gmail.com> - 0.9.0-1
 - Initial RPM packaging
