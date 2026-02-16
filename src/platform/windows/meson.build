@@ -92,3 +92,20 @@ windows_config_exe = executable('mousedamper-config',
   install_dir: exec_path,
   win_subsystem: 'windows'
 )
+
+############ Copy runtime DLLs for installer
+
+# Find MinGW bin directory for runtime DLLs
+mingw_bindir = '/mingw64/bin'
+
+# Copy required MinGW runtime DLLs to build/dlls for the installer
+dlls_dir = meson.project_build_root() / 'dlls'
+
+custom_target('copy-dlls',
+  output: ['libintl-8.dll', 'libiconv-2.dll'],
+  command: [
+    'sh', '-c',
+    'mkdir -p ' + dlls_dir + ' && cp ' + mingw_bindir + '/libintl-8.dll ' + mingw_bindir + '/libiconv-2.dll ' + dlls_dir + '/'
+  ],
+  build_by_default: true
+)

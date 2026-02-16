@@ -177,6 +177,7 @@ jobs:
               run: |
                   ls -lh build/src/*.exe
                   ls -lh build/src/platform/windows/*.exe
+                  ls -lh build/dlls/*.dll
 
             - name: Pre-installer verification
               run: |
@@ -185,6 +186,8 @@ jobs:
                   test -f build/src/mousedamper.exe && echo "✓ build/src/mousedamper.exe" || echo "✗ build/src/mousedamper.exe MISSING"
                   test -f build/src/platform/windows/mousedamper-launch.exe && echo "✓ build/src/platform/windows/mousedamper-launch.exe" || echo "✗ build/src/platform/windows/mousedamper-launch.exe MISSING"
                   test -f build/src/platform/windows/mousedamper-config.exe && echo "✓ build/src/platform/windows/mousedamper-config.exe" || echo "✗ build/src/platform/windows/mousedamper-config.exe MISSING"
+                  test -f build/dlls/libintl-8.dll && echo "✓ build/dlls/libintl-8.dll" || echo "✗ build/dlls/libintl-8.dll MISSING"
+                  test -f build/dlls/libiconv-2.dll && echo "✓ build/dlls/libiconv-2.dll" || echo "✗ build/dlls/libiconv-2.dll MISSING"
                   test -f installer.nsi && echo "✓ installer.nsi" || echo "✗ installer.nsi MISSING"
 
             - name: Verify files exist for NSIS
@@ -195,7 +198,10 @@ jobs:
                   if (Test-Path "build\src\mousedamper.exe") { Write-Host "✓ build\src\mousedamper.exe" } else { Write-Host "✗ build\src\mousedamper.exe MISSING"; exit 1 }
                   if (Test-Path "build\src\platform\windows\mousedamper-launch.exe") { Write-Host "✓ build\src\platform\windows\mousedamper-launch.exe" } else { Write-Host "✗ build\src\platform\windows\mousedamper-launch.exe MISSING"; exit 1 }
                   if (Test-Path "build\src\platform\windows\mousedamper-config.exe") { Write-Host "✓ build\src\platform\windows\mousedamper-config.exe" } else { Write-Host "✗ build\src\platform\windows\mousedamper-config.exe MISSING"; exit 1 }
+                  if (Test-Path "build\dlls\libintl-8.dll") { Write-Host "✓ build\dlls\libintl-8.dll" } else { Write-Host "✗ build\dlls\libintl-8.dll MISSING"; exit 1 }
+                  if (Test-Path "build\dlls\libiconv-2.dll") { Write-Host "✓ build\dlls\libiconv-2.dll" } else { Write-Host "✗ build\dlls\libiconv-2.dll MISSING"; exit 1 }
                   Get-ChildItem -Recurse build\src\*.exe | Select-Object FullName
+                  Get-ChildItem build\dlls\*.dll | Select-Object FullName
 
             - name: Build NSIS installer
               shell: pwsh
