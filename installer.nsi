@@ -32,11 +32,11 @@ RequestExecutionLevel admin
 !insertmacro MUI_LANGUAGE "English"
 
 ; Version information
-VIProductVersion "0.9.0.0"
+VIProductVersion "0.9.1.0"
 VIAddVersionKey "ProductName" "Mouse Damper"
 VIAddVersionKey "FileDescription" "Mouse Damper Installer"
-VIAddVersionKey "FileVersion" "0.9.0.0"
-VIAddVersionKey "ProductVersion" "0.9.0.0"
+VIAddVersionKey "FileVersion" "0.9.1.0"
+VIAddVersionKey "ProductVersion" "0.9.1.0"
 VIAddVersionKey "LegalCopyright" "GPL-3.0"
 VIAddVersionKey "CompanyName" "Michael Webster"
 
@@ -64,6 +64,10 @@ Section "Mouse Damper" SecMain
   File "build\src\platform\windows\mousedamper-launch.exe"
   File "build\src\platform\windows\mousedamper-config.exe"
 
+  ; Install required MinGW runtime DLLs
+  File "build\dlls\libintl-8.dll"
+  File "build\dlls\libiconv-2.dll"
+
   ; Create Start Menu shortcuts
   CreateDirectory "$SMPROGRAMS\Mouse Damper"
   CreateShortcut "$SMPROGRAMS\Mouse Damper\Configure Mouse Damper.lnk" \
@@ -84,7 +88,7 @@ Section "Mouse Damper" SecMain
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\MouseDamper" \
               "Publisher" "Michael Webster"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\MouseDamper" \
-              "DisplayVersion" "0.9.0"
+              "DisplayVersion" "0.9.1"
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\MouseDamper" \
                 "NoModify" 1
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\MouseDamper" \
@@ -124,6 +128,10 @@ Section "Uninstall"
   Delete "$INSTDIR\mousedamper-launch.exe"
   Delete "$INSTDIR\mousedamper-config.exe"
   Delete "$INSTDIR\uninstall.exe"
+
+  ; Remove MinGW runtime DLLs
+  Delete "$INSTDIR\libintl-8.dll"
+  Delete "$INSTDIR\libiconv-2.dll"
   RMDir "$INSTDIR"
 
   ; Remove Start Menu shortcuts
