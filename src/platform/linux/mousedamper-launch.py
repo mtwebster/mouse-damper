@@ -267,6 +267,7 @@ class MouseDamperManager(Gtk.Application):
         dialog.set_comments(_("Prevents unintended mouse movements during clicks"))
         dialog.set_copyright(_("Copyright 2020 Michael Webster"))
         dialog.set_license_type(Gtk.License.GPL_3_0)
+        dialog.set_logo_icon_name("mousedamper")
         dialog.run()
         dialog.destroy()
 
