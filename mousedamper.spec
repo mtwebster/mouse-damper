@@ -1,5 +1,5 @@
 Name:           mousedamper
-Version:        0.9.2
+Version:        0.9.3
 Release:        1%{?dist}
 Summary:        Mouse damper to prevent accidental clicks
 
@@ -73,6 +73,9 @@ chmod 4755 %{buildroot}%{_libexecdir}/mousedamper/mousedamper
 /usr/bin/gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 
 %changelog
+* Fri Feb 20 2026 Michael Webster <miketwebster@gmail.com> - 0.9.3-1
+- Fix about-dialog icon
+
 * Sun Feb 15 2026 Michael Webster <miketwebster@gmail.com> - 0.9.2-1
 - Install autostart desktop file to /etc/xdg/autostart
 

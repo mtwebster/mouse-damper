@@ -32,11 +32,11 @@ RequestExecutionLevel admin
 !insertmacro MUI_LANGUAGE "English"
 
 ; Version information
-VIProductVersion "0.9.2.0"
+VIProductVersion "0.9.3.0"
 VIAddVersionKey "ProductName" "Mouse Damper"
 VIAddVersionKey "FileDescription" "Mouse Damper Installer"
-VIAddVersionKey "FileVersion" "0.9.2.0"
-VIAddVersionKey "ProductVersion" "0.9.2.0"
+VIAddVersionKey "FileVersion" "0.9.3.0"
+VIAddVersionKey "ProductVersion" "0.9.3.0"
 VIAddVersionKey "LegalCopyright" "GPL-3.0"
 VIAddVersionKey "CompanyName" "Michael Webster"
 
@@ -88,7 +88,7 @@ Section "Mouse Damper" SecMain
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\MouseDamper" \
               "Publisher" "Michael Webster"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\MouseDamper" \
-              "DisplayVersion" "0.9.2"
+              "DisplayVersion" "0.9.3"
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\MouseDamper" \
                 "NoModify" 1
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\MouseDamper" \
