@@ -57,6 +57,24 @@ translate_button_code (guint code)
 }
 
 static gboolean
+check_devices_idle (gpointer user_data)
+{
+    MouseDevice *device = user_data;
+
+    g_warning ("Removing disconnected device, %u device(s) remaining",
+               mouse_devices->len - 1);
+
+    g_ptr_array_remove (mouse_devices, device);
+
+    if (mouse_devices->len == 0) {
+        g_print ("All devices disconnected, exiting\n");
+        g_main_loop_quit (main_loop);
+    }
+
+    return G_SOURCE_REMOVE;
+}
+
+static gboolean
 device_event_callback (GIOChannel *source, GIOCondition condition, gpointer user_data)
 {
     MouseDevice *device = user_data;
@@ -65,6 +83,8 @@ device_event_callback (GIOChannel *source, GIOCondition condition, gpointer user
 
     if (condition & (G_IO_HUP | G_IO_ERR)) {
         g_warning ("Device disconnected or error occurred");
+        device->watch_id = 0;
+        g_idle_add (check_devices_idle, device);
         return G_SOURCE_REMOVE;
     }
 

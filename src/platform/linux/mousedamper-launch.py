@@ -65,6 +65,25 @@ class MouseDamperManager(Gtk.Application):
         self.restart_window_start = GLib.get_monotonic_time()
         self.restart_timeout_id = 0
 
+        # Suspend/resume handling
+        self.resuming = False
+        self.resume_restart_id = 0
+
+        try:
+            bus = Gio.bus_get_sync(Gio.BusType.SYSTEM, None)
+            bus.signal_subscribe(
+                "org.freedesktop.login1",
+                "org.freedesktop.login1.Manager",
+                "PrepareForSleep",
+                "/org/freedesktop/login1",
+                None,
+                Gio.DBusSignalFlags.NONE,
+                self.on_prepare_for_sleep
+            )
+            self.system_bus = bus
+        except Exception as e:
+            print(f"Failed to connect to logind: {e}")
+
         # XAppStatusIcon
         self.status_icon = XApp.StatusIcon()
         self.setup_tray_icon()
@@ -176,7 +195,10 @@ class MouseDamperManager(Gtk.Application):
     def on_daemon_exited(self, process, result):
         try:
             process.wait_finish(result)
-            exit_code = process.get_exit_status()
+            if process.get_if_exited():
+                exit_code = process.get_exit_status()
+            else:
+                exit_code = -1
         except:
             exit_code = -1
 
@@ -186,8 +208,11 @@ class MouseDamperManager(Gtk.Application):
             print(f"Mousedamper daemon exited with code {exit_code}")
 
         if self.settings.get_boolean(KEY_ENABLED):
-            # Auto-restart with throttling
-            self.handle_daemon_crash()
+            if self.resuming:
+                if self.verbose:
+                    print("Daemon exited during suspend/resume cycle, restart already scheduled")
+            else:
+                self.handle_daemon_crash()
         else:
             self.update_tooltip()
 
@@ -209,6 +234,40 @@ class MouseDamperManager(Gtk.Application):
             print("Mousedamper crashed too many times, giving up")
             self.send_notification(_("Mouse Damper Error"), _("Daemon crashed too many times. Please check logs."))
             self.update_tooltip()
+
+    def on_prepare_for_sleep(self, connection, sender_name, object_path,
+                             interface_name, signal_name, parameters):
+        going_to_sleep = parameters.unpack()[0]
+
+        if going_to_sleep:
+            if self.verbose:
+                print("System suspending, stopping daemon")
+            self.resuming = True
+            self.stop_daemon()
+        else:
+            if self.verbose:
+                print("System resumed, scheduling daemon restart")
+            self.resuming = True
+            self.restart_count = 0
+            self.restart_window_start = GLib.get_monotonic_time()
+
+            if self.resume_restart_id > 0:
+                GLib.source_remove(self.resume_restart_id)
+
+            self.resume_restart_id = GLib.timeout_add_seconds(
+                5, self.restart_after_resume
+            )
+
+    def restart_after_resume(self):
+        self.resume_restart_id = 0
+        self.resuming = False
+
+        if self.settings.get_boolean(KEY_ENABLED):
+            if self.verbose:
+                print("Restarting daemon after resume")
+            self.start_daemon()
+
+        return GLib.SOURCE_REMOVE
 
     def on_settings_changed(self, settings, key):
         # Restart daemon on any GSettings change
@@ -274,6 +333,9 @@ class MouseDamperManager(Gtk.Application):
     def on_quit(self, item):
         if self.verbose:
             print("Quitting manager...")
+        if self.resume_restart_id > 0:
+            GLib.source_remove(self.resume_restart_id)
+            self.resume_restart_id = 0
         self.stop_daemon()
         self.quit()
 
