@@ -1,6 +1,6 @@
 project('mouse-damper',
   'c',
-  version : '0.9.3'
+  version : '0.9.4'
 )
 
 # i18n configuration
