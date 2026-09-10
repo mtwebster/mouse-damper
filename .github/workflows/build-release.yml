@@ -99,13 +99,17 @@ jobs:
 
             - name: Create RPM build structure
               run: |
+                  SPEC=$(ls *.spec)
+                  SRCDIR=$(rpmspec -q --srpm --qf '%{name}-%{version}' "$SPEC")
+                  echo "Building $SRCDIR from $SPEC"
                   mkdir -p ~/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
-                  tar --exclude='.git' --exclude='build*' --transform="s,^\.,mousedamper-${{ steps.version.outputs.version }}," -czf ~/rpmbuild/SOURCES/mousedamper-${{ steps.version.outputs.version }}.tar.gz .
-                  cp mousedamper.spec ~/rpmbuild/SPECS/
+                  tar --exclude='.git' --exclude='build*' --transform="s,^\.,$SRCDIR," -czf ~/rpmbuild/SOURCES/$SRCDIR.tar.gz .
+                  cp "$SPEC" ~/rpmbuild/SPECS/
+                  echo "SPEC=$SPEC" >> $GITHUB_ENV
 
             - name: Build RPM packages
               run: |
-                  rpmbuild -ba ~/rpmbuild/SPECS/mousedamper.spec
+                  rpmbuild -ba ~/rpmbuild/SPECS/$SPEC
 
             - name: Move packages to workspace
               run: |
@@ -272,7 +276,7 @@ jobs:
             - name: Create Release
               uses: softprops/action-gh-release@v1
               with:
-                  tag_name: v${{ steps.version.outputs.version }}
+                  tag_name: ${{ steps.version.outputs.version }}
                   name: Mouse Damper v${{ steps.version.outputs.version }}
                   draft: false
                   prerelease: false
@@ -291,8 +295,8 @@ jobs:
                       - `mousedamper-dbg_${{ steps.version.outputs.version }}_amd64.deb` - Debug symbols (optional)
 
                       ### Fedora/RHEL
-                      - `mousedamper-${{ steps.version.outputs.version }}-1.fc*.x86_64.rpm` - Main daemon package
-                      - `mousedamper-common-${{ steps.version.outputs.version }}-1.fc*.noarch.rpm` - Common files (required)
+                      - `mouse-damper-${{ steps.version.outputs.version }}-1.fc*.x86_64.rpm` - Main daemon package
+                      - `mouse-damper-common-${{ steps.version.outputs.version }}-1.fc*.noarch.rpm` - Common files (required)
 
                       ## Installation
 
@@ -310,8 +314,8 @@ jobs:
 
                       ### Fedora/RHEL
                       ```bash
-                      sudo dnf install mousedamper-${{ steps.version.outputs.version }}-1.fc*.x86_64.rpm \
-                                       mousedamper-common-${{ steps.version.outputs.version }}-1.fc*.noarch.rpm
+                      sudo dnf install mouse-damper-${{ steps.version.outputs.version }}-1.fc*.x86_64.rpm \
+                                       mouse-damper-common-${{ steps.version.outputs.version }}-1.fc*.noarch.rpm
                       ```
 
                       Built with GitHub Actions

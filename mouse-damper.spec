@@ -1,5 +1,5 @@
 Name:           mouse-damper
-Version:        0.9.4
+Version:        0.9.5
 Release:        1%{?dist}
 Summary:        Mouse damper to prevent accidental clicks
 
@@ -68,6 +68,9 @@ desktop-file-validate %{buildroot}%{_sysconfdir}/xdg/autostart/mousedamper.deskt
 %{_datadir}/icons/hicolor/*/apps/mousedamper*.svg
 
 %changelog
+* Thu Sep 10 2026 Michael Webster <miketwebster@gmail.com> - 0.9.5-1
+- RPM packaging fixes for Fedora review
+
 * Thu Mar 19 2026 Michael Webster <miketwebster@gmail.com> - 0.9.4-1
 - Handle suspend/resume and device disconnection gracefully
 

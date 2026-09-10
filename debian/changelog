@@ -1,3 +1,9 @@
+mousedamper (0.9.5) unstable; urgency=medium
+
+  * Fedora packaging fixes.
+
+ -- Michael Webster <miketwebster@gmail.com>  Thu, 10 Sep 2026 00:00:00 -0400
+
 mousedamper (0.9.4) unstable; urgency=medium
 
   * Handle suspend/resume and device disconnection gracefully
