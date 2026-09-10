@@ -16,6 +16,7 @@ BuildRequires:  libevdev-devel
 BuildRequires:  pkgconfig
 BuildRequires:  python3
 BuildRequires:  gettext
+Requires: %{name}-common = %{version}-%{release}
 
 %description
 Mouse Damper is a utility that helps prevent accidental clicks caused by
