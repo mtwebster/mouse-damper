@@ -80,7 +80,7 @@ desktop-file-validate %{buildroot}%{_sysconfdir}/xdg/autostart/mousedamper.deskt
 * Sun Feb 15 2026 Michael Webster <miketwebster@gmail.com> - 0.9.2-1
 - Install autostart desktop file to /etc/xdg/autostart
 
-* Sat Feb 15 2026 Michael Webster <miketwebster@gmail.com> - 0.9.1-1
+* Sun Feb 15 2026 Michael Webster <miketwebster@gmail.com> - 0.9.1-1
 - Bundle required MinGW runtime DLLs in Windows installer (fixes #2)
 
 * Tue Jan 06 2026 Michael Webster <miketwebster@gmail.com> - 0.9.0-1

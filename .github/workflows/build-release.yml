@@ -72,17 +72,8 @@ jobs:
 
             - name: Install dependencies
               run: |
-                  dnf install -y \
-                      meson \
-                      ninja-build \
-                      gcc \
-                      glib2-devel \
-                      libevdev-devel \
-                      pkgconfig \
-                      python3 \
-                      gettext \
-                      rpm-build \
-                      rpmdevtools
+                  dnf install -y rpm-build rpmdevtools 'dnf-command(builddep)'
+                  dnf builddep -y *.spec
 
             - name: Extract version
               id: version
